@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{# print all experts and add new expert (name, mail) #}
+{% block content %}
+    <h1>Experts</h1>
+    <ul>
+        {% for expert in experts %}
+            <li>{{ expert.name }} ({{ expert.mail }})</li>
+        {% endfor %}
+    </ul>
+    <h1>Add new expert</h1>
+    <form action="/admin" method="post">
+        <input type="text" name="name" placeholder="Name">
+        <input type="text" name="mail" placeholder="Mail">
+        <input type="submit" value="Add">
+    </form>
+{% endblock %}
+```
