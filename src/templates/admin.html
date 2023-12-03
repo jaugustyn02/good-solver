@@ -30,5 +30,27 @@
         <input type="hidden" name="action" value="delete_expert">
         <input type="submit" value="Delete">
     </form>
+    <h1>Alternatives</h1>
+    <ul>
+        {% for alternative in alternatives %}
+            <li>[{{alternative.id}}] - {{ alternative.name }} ({{ alternative.description }})</li>
+        {% endfor %}
+    </ul>
+    <h1>Add alternative</h1>
+    <form action="/admin" method="post">
+        <input type="text" name="name" placeholder="Name">
+        <input type="text" name="description" placeholder="Description">
+        <input type="hidden" name="action" value="add_alternative">
+        <input type="submit" value="Add">
+    </form>
+    <h1>Delete alternative</h1>
+    <form action="/admin" method="post">
+        <select name="id">
+            {% for alternative in alternatives %}
+                <option value="{{ alternative.id }}">[{{alternative.id}}] {{ alternative.name }}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="action" value="delete_alternative">
+        <input type="submit" value="Delete">
 {% endblock %}
 ```
