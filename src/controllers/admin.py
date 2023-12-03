@@ -25,18 +25,15 @@ def configure_admin_routes(app):
             flash('Mail is required!')
         else:
             expert = Expert(name, mail)
-            create_expert(expert)
-            flash('Expert created successfully')
-                
+            result = create_expert(expert)
+            flash(result.message)
         return redirect(url_for('admin'))
     
     def handle_delete_expert():
         expert_id = request.form['id']
-        print('EXPERT ID:', expert_id)
-        if not id:
+        if not expert_id:
             flash('ID is required!')
         else:
-            delete_expert(int(expert_id))
-            flash('Expert deleted successfully')
-            
+            result = delete_expert(int(expert_id))
+            flash(result.message)
         return redirect(url_for('admin'))
