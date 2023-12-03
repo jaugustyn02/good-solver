@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Your ranking</h1>
+    <p> {{ ranking_name }} </p>
+    <ol>
+        {% for name in ranking %}
+        <li> {{name}} </li>
+        {% endfor %}
+    </ol>
+{% endblock %}
+```
