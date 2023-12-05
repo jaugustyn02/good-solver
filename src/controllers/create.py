@@ -3,11 +3,11 @@ from models.rankings import create_ranking
 
 
 def configure_create_routes(app):
-    @app.route('/create-ranking')
+    @app.route('/create-scenario')
     def create():
         return render_template('create.html')
 
-    @app.route('/create-ranking/end_page', methods=['GET', 'POST'])
+    @app.route('/create-scenario/end_page', methods=['GET', 'POST'])
     def create_rankings():
         experts = request.form['experts']
         alternatives = request.form['alternatives']
