@@ -2,6 +2,17 @@
 
 {% block content %}
     <h1>Rankings</h1>
-    <p> Welcome to the rankings page!</p>
+    <p> Choose which ranking you want to have displayed </p>
+    <form method="POST" action="{{url_for('show_rankings')}}">
+          <label>
+              <select name="sel" id="sel">
+                  {% for arg in arguments %}
+                    <option value="{{ arg }}">{{ arg }}</option>
+                  {% endfor %}
+              </select>
+          </label>
+          <br>
+        <input type="submit">
+    </form>
 {% endblock %}
 ```
