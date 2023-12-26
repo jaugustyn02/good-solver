@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div>
+        {% for message in get_flashed_messages() %}
+            <div style='color:red';>{{ message }}</div>
+        {% endfor %}
+    </div>
+    <h1>Log in as expert</h1>
+    <form action="/expert" method="post">
+        <select name="id">
+            {% for expert in experts %}
+                <option value="{{ expert.id }}">[{{expert.id}}] {{ expert.name }}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="action" value="login">
+        <input type="submit" value="Login">
+    </form>
+{% endblock %}
+```

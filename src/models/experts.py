@@ -43,3 +43,16 @@ def delete_expert(expert_id: int) -> Result:
     cursor.close()
     db.close()
     return Result(True, "Expert deleted successfully")
+
+
+def get_expert_name(expert_id: int) -> str:
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT name FROM Experts WHERE expert_id = %s', (expert_id,))
+    name = cursor.fetchone()[0]
+    cursor.close()
+    db.close()
+    return name
+
+def get_expert_first_name(expert_id: int) -> str:
+    return get_expert_name(expert_id).split()[0]
