@@ -21,7 +21,7 @@ def create_criteria(criteria: Criteria) -> dict:
 def get_criteria_id(name_):
     db = get_db()
     cursor = db.cursor()
-    cursor.execute("SELECT * FROM Criterias WHERE name = '%s'" % name_)
+    cursor.execute("SELECT * FROM Criterias WHERE name = %s", (name_,))
     if cursor.fetchone() is None:
         return Result(False, 'Criteria is not present!')
     for criterion_id, parent_criterion, name, description in cursor:
