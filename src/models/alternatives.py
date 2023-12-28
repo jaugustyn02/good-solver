@@ -24,6 +24,18 @@ def get_alternatives() -> list:
     return alternatives
 
 
+def get_alternative_id(name_):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM Alternatives WHERE name = '%s'" % name_)
+    if cursor.fetchone() is None:
+        return Result(False, 'Alternative is not present!')
+    for id, name, description in cursor:
+        cursor.close()
+        db.close()
+        return id
+
+
 def create_alternative(alternative: Alternative) -> dict:
     db = get_db()
     cursor = db.cursor()
