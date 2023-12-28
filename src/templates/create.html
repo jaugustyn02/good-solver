@@ -4,6 +4,10 @@
     <h1>Create</h1>
     <h4> Create a new ranking!</h4>
     <form method="POST" action="{{url_for('create_rankings')}}">
+        <label for="name">Name your ranking</label>
+        <input type="text" id="name" name="name">
+        <br>
+        <br>
         <label for="alternatives">Add alternatives</label>
         <input type="text" id="alternatives" name="alternatives">
         <br>
