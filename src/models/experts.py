@@ -21,6 +21,16 @@ def get_experts() -> list:
     db.close()
     return experts
 
+
+def get_expert_id(name_):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM Experts WHERE name like '%s'" % name_)
+    for id, name, mail in cursor:
+        cursor.close()
+        db.close()
+        return id
+
 def create_expert(expert: Expert) -> Result:
     db = get_db()
     cursor = db.cursor()
