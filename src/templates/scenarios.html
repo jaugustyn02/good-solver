@@ -1,0 +1,19 @@
+{% extends 'components/base.html' %}
+{% block content %}
+    {% include 'components/result.html' %}
+    <div class="container">
+    <h1>Ongoing Scenarios:</h1>
+    <ul>
+        {% for scenario in scenarios_in_progress %}
+            <li><a href="{{ url_for('scenarios_view', scenario_id=scenario.id) }}">{{ scenario.id }}) - {{ scenarios_names[scenario.id]}}</a></li>
+        {% endfor %}
+    </ul>
+    <h1>Completed Scenarios:</h1>
+    <ul>
+        {% for scenario in scenarios_completed %}
+            <li><a href="{{ url_for('scenarios_view', scenario_id=scenario.id) }}">{{ scenario.id }}) - {{ scenarios_names[scenario.id]}}</a></li>
+        {% endfor %}
+    </ul>
+    </div>
+{% endblock %}
+```

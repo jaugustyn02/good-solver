@@ -1,0 +1,42 @@
+{% extends 'components/base.html' %}
+{% block content %}
+<div class="container">
+    {% include 'components/result.html' %}
+    <h1>Scenario Panel</h1>
+    <h2>List of current criterias:</h2>
+    <ul>
+        {% for criterion in criterias %}
+            {% if criterion.parent_id is not none %}
+            <li>[{{ criterion.id }}] - ParentID: {{ criterion.parent_id }}, Name: {{ criterion.name }}, Description:  {{ criterion.description }}</li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+    <h2> Add a new criterion:</h2>
+    <form action="/scenarios/add_criterion" method="post">
+        <input type="text" name="name" placeholder="Name">
+        <input type="text" name="description" placeholder="Description">
+        <label for="parent_id">Parent criterion:</label>
+        <select name="parent_id">
+            {% for criterion in criterias %}
+            <option value="{{ criterion.id }}">{{ criterion.name }}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="scenario_id" value="{{ scenario_id }}">
+        <br>
+        <br>
+        <input type="submit" value="Add">
+    </form>
+    <h2> Delete an criterion:</h2>
+    <form action="/scenarios/delete_criterion" method="post">
+        <select name="criterion_id">
+            {% for criterion in criterias %}
+                {% if criterion.parent_id is not none %}
+                    <option value="{{ criterion.id }}">{{ criterion.name }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <input type="hidden" name="scenario_id" value="{{ scenario_id }}">
+        <input type="submit" value="Delete">
+</div>
+{% endblock %}
+```

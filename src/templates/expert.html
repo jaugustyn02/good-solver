@@ -1,7 +1,21 @@
-{% extends 'base.html' %}
+{% extends 'components/base.html' %}
 
 {% block content %}
-    <h1>Witaj {{expert_name}}!</h1>
-    <p> Welcome to the expert {{expert_id}} page!</p>
+    <div class="container">
+    {% include 'components/result.html' %}
+    <h1>Welcome {{expert_name}}!</h1>
+    <h2> Your list of uncompleted scenarios: </h2>
+    <ul>
+        {% for scenario in scenarios_in_progress %}
+            <li><a href="/scenario/{{scenario.id}}">{{scenario.name}}</a></li>
+        {% endfor %}
+    </ul>
+    <h2> Your list of completed scenarios: </h2>
+    <ul>
+        {% for scenario in scenarios_ended %}
+            <li><a href="/scenario/{{scenario.id}}">{{scenario.name}}</a></li>
+        {% endfor %}
+    </ul>
+    </div>
 {% endblock %}
 ```

@@ -1,0 +1,30 @@
+{% extends 'components/base.html' %}
+{% block content %}
+<div class="container">
+    {% include 'components/result.html' %}
+    <h1>Scenario Panel</h1>
+    <h2>List of current alternatives:</h2>
+    <ul>
+        {% for alternative in alternatives %}
+        <li>[{{ alternative.id }}] - Name: {{ alternative.name }}, Description:  {{ alternative.description }}</li>
+        {% endfor %}
+    </ul>
+    <h2> Add a new alternative:</h2>
+    <form action="/scenarios/add_alternative" method="post">
+        <input type="text" name="alternative_name" placeholder="Name">
+        <input type="text" name="alternative_description" placeholder="Description">
+        <input type="hidden" name="scenario_id" value="{{ scenario_id }}">
+        <input type="submit" value="Add">
+    </form>
+    <h2> Delete an alternative:</h2>
+    <form action="/scenarios/delete_alternative" method="post">
+        <select name="alternative_id">
+            {% for alternative in alternatives %}
+            <option value="{{ alternative.id }}">{{ alternative.name }}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="scenario_id" value="{{ scenario_id }}">
+        <input type="submit" value="Delete">
+</div>
+{% endblock %}
+```

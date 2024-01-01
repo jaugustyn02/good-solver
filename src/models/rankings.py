@@ -3,10 +3,11 @@ from helpers.database import get_mysql_connection as get_db
 from helpers.result import OperationResult as Result
 from models.experts import Expert, get_expert_id, create_expert
 from models.alternatives import Alternative, create_alternative, get_alternative_id
-from models.criterions import Criteria, create_criteria, get_criteria_id
+from models.criterions import Criterion, create_criterion, get_criteria_id
 from models.scales import Scale, create_scale, get_scale_id
 from models.scenarios import Scenario, create_scenario, create_scenario_data, get_scenario_id, get_data_id
 from models.data_matrices import DataMatrix, create_matrix
+from models.models import Model, add_model
 
 class Ranking:
     def __init__(self, name, ranking_method, aggregation_method, completeness_required, start_date, end_date, id=None):
@@ -57,7 +58,24 @@ def get_ranking(ranking_name):
     return data
 
 
-def create_ranking(name, alternatives, criterions, experts, start_date, end_date, scale):
+def validate_input(name, alternatives, criterions, experts, scale) -> Result:
+    if name == "":
+        return Result(False, "Ranking Name cannot be empty")
+    if alternatives == "":
+        return Result(False, "Alternatives cannot be empty")
+    if criterions == "":
+        return Result(False, "Criterions cannot be empty")
+    if experts == "":
+        return Result(False, "Experts cannot be empty")
+    if scale == "":
+        return Result(False, "Scale cannot be empty")
+    return Result(True, "Data validated successfully")
+
+
+def create_ranking(name, alternatives, criterions, experts, start_date, end_date, scale) -> Result:
+    validation = validate_input(name, alternatives, criterions, experts, scale)
+    if not validation.success:
+        return validation
     # initial checks
     if name == "" or alternatives == "" or criterions == "" or scale == "":
         return Result(False, "Not enough data provided")
@@ -67,6 +85,13 @@ def create_ranking(name, alternatives, criterions, experts, start_date, end_date
         end_date = datetime.now() + timedelta(days=1)
     if scale == "":
         scale = "1 2 3 4 5 6 7 8 9"
+    # preparing input data
+    name = name.strip()
+    experts = [expert.strip() for expert in experts.split(",")]
+    criterions = [criteria.strip() for criteria in criterions.split(",")]
+    alternatives = [alternative.strip() for alternative in alternatives.split(",")]
+    scale_ls = [int(s) for s in scale.split(" ")]
+        
     # creating the model
     db = get_db()
     cursor = db.cursor()
@@ -87,7 +112,7 @@ def create_ranking(name, alternatives, criterions, experts, start_date, end_date
     cursor.close()
     # creating model alternatives
     cursor = db.cursor()
-    for alternative in alternatives.split(", "):
+    for alternative in alternatives:
         alt_id = get_alternative_id(alternative)
         if not alt_id or (type(alt_id) is Result and not alt_id.success):
             create_alternative(Alternative(alternative, ""))
@@ -99,10 +124,10 @@ def create_ranking(name, alternatives, criterions, experts, start_date, end_date
     cursor.close()
     # creating model criteria
     cursor = db.cursor()
-    for criteria in criterions.split(", "):
+    for criteria in criterions:
         criteria_id = get_criteria_id(criteria)
         if not criteria_id or (type(criteria_id) is Result and not criteria_id.success):
-            create_criteria(Criteria(None, criteria, ""))
+            create_criterion(Criterion(None, criteria, ""))
             criteria_id = get_criteria_id(criteria)
         cursor.execute(
             'INSERT INTO Model_Criterias (model_id, criterion_id) VALUES (%s, %s)',
@@ -111,7 +136,7 @@ def create_ranking(name, alternatives, criterions, experts, start_date, end_date
     cursor.close()
     # creating model experts
     cursor = db.cursor()
-    for expert in experts.split(", "):
+    for expert in experts:
         expert_id = get_expert_id(expert)
         if not expert_id:
             create_expert(Expert(expert, ""))
@@ -137,8 +162,8 @@ def create_ranking(name, alternatives, criterions, experts, start_date, end_date
     data_id = create_scenario_data(model_id_[0])
     # creating data matrices
     size = len(alternatives)
-    for expert in experts.split(", "):
-        for criteria in criterions.split(", "):
+    for expert in experts:
+        for criteria in criterions:
             expert_id = get_expert_id(expert)
             criteria_id = get_criteria_id(criteria)
             create_matrix(DataMatrix(data_id[0], expert_id, criteria_id, size))

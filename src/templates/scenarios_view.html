@@ -1,0 +1,31 @@
+{% extends 'components/base.html' %}
+{% block content %}
+<div class="container">
+    {% include 'components/result.html' %}
+    <h1>Scenario Panel</h1>
+    <h2>Details:</h2>
+    <p>Model Name: {{ model.name }}</p>
+    <p>Scenario ID: {{ scenario_id }}</p>
+    <p>Start Date: {{ model.start_date }}</p>
+    <p>Ranking method: {{ model.ranking_method|upper }}</p>
+    <p>Aggregation method: {{ model.aggregation_method|upper }}</p>
+    <p>Completeness required: {% if model.completeness_required == 1 %} Yes {% else %} No {% endif %}</p>
+    <h2>Alternatives:</h2>
+    <ul>
+        {% for alternative in alternatives %}
+        <li>[{{ alternative.id }}] - Name: {{ alternative.name }}, Description:  {{ alternative.description }}</li>
+        {% endfor %}
+    </ul>
+    <p>To modify alternatives, click <a href="{{ url_for('scenarios_alternatives', scenario_id=scenario_id) }}">here.</a></p>
+    <h2>Criteria:</h2>
+    <ul>
+        {% for criterion in criterias %}
+            {% if criterion.parent_id is not none %}
+            <li>[{{ criterion.id }}] - ParentID: {{ criterion.parent_id }}, Name: {{ criterion.name }}, Description:  {{ criterion.description }}</li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+    <p>To modify criteria, click <a href="{{ url_for('scenarios_criterias', scenario_id=scenario_id) }}">here.</a></p>
+</div>
+{% endblock %}
+```
