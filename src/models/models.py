@@ -197,3 +197,28 @@ def add_default_scales(model_id: int) -> Result:
     for scale in default_scales:
         add_model_scale(model_id, scale)
     return Result(True, "Default scales added successfully")
+
+
+def add_expert_to_model(model_id: int, expert_id: int) -> Result:
+    db = get_db()
+    cursor = db.cursor()
+    
+    cursor.execute('SELECT * FROM Model_Experts WHERE ranking_id = %s AND expert_id = %s', (model_id, expert_id))
+    if cursor.fetchone() is not None:
+        return Result(False, 'You have already joined this survey')
+    
+    cursor.execute('INSERT INTO Model_Experts (ranking_id, expert_id) VALUES (%s, %s)', (model_id, expert_id))
+    db.commit()
+    cursor.close()
+    db.close()
+    return Result(True, "You have joined the survey successfully")
+
+def count_experts_in_model(model_id: int) -> Result:
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT COUNT(*) FROM Model_Experts WHERE ranking_id = %s', (model_id,))
+    for count in cursor:
+        cursor.close()
+        db.close()
+        return Result(True, "Experts counted", {"expert_count": count[0]})
+    return Result(False, "No experts found")

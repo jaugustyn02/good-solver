@@ -10,13 +10,16 @@
     <p>Ranking method: {{ model.ranking_method|upper }}</p>
     <p>Aggregation method: {{ model.aggregation_method|upper }}</p>
     <p>Completeness required: {% if model.completeness_required == 1 %} Yes {% else %} No {% endif %}</p>
+    <p>Survey access code: {{ survey_code }}</p>
+    <P>Surveys completed: {{ surveys_completed }}</P>
+    <p>Experts joined: {{ experts_joined }}</p>
     <h2>Alternatives:</h2>
     <ul>
         {% for alternative in alternatives %}
         <li>[{{ alternative.id }}] - Name: {{ alternative.name }}, Description:  {{ alternative.description }}</li>
         {% endfor %}
     </ul>
-    <p>To modify alternatives, click <a href="{{ url_for('scenarios_alternatives', scenario_id=scenario_id) }}">here.</a></p>
+    <p>To edit alternatives, click <a href="{{ url_for('scenarios_alternatives', scenario_id=scenario_id) }}">here.</a></p>
     <h2>Criteria:</h2>
     <ul>
         {% for criterion in criterias %}
@@ -25,14 +28,14 @@
             {% endif %}
         {% endfor %}
     </ul>
-    <p>To modify criteria, click <a href="{{ url_for('scenarios_criterias', scenario_id=scenario_id) }}">here.</a></p>
+    <p>To edit criteria, click <a href="{{ url_for('scenarios_criterias', scenario_id=scenario_id) }}">here.</a></p>
     <h2>Scale:</h2>
     <ul>
         {% for scale in scales %}
         <li>[{{ scale.id }}] - Value: {{ scale.value }}, Description:  {{ scale.description }}</li>
         {% endfor %}
     </ul>
-    <p>To modify scale, click <a href="{{ url_for('scenarios_scales', scenario_id=scenario_id) }}">here.</a></p>
+    <p>To edit scale, click <a href="{{ url_for('scenarios_scales', scenario_id=scenario_id) }}">here.</a></p>
     <h2>Options:</h2>
     <form action="{{ url_for('scenarios_finalize', scenario_id=scenario_id) }}" method="post">
         <input type="submit" value="Finalize Configuration">
