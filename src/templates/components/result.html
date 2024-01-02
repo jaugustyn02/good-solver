@@ -1,7 +1,7 @@
 {% block content %}
 <div>
     {% for message in get_flashed_messages() %}
-        <div style='color:red';>{{ message }}</div>
+        <div id="flashed_message";>{{ message }}</div>
     {% endfor %}
 </div>
 {% endblock content %}

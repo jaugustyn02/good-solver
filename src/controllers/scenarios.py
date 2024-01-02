@@ -1,9 +1,10 @@
 from flask import render_template, request, flash, redirect, url_for
-from models.models import add_model, Model, get_model_name, get_model, add_model_alternative, delete_model_alternative, add_model_criterion, delete_model_criterion
+from models.models import add_model, Model, get_model_name, get_model, add_model_alternative, delete_model_alternative, add_model_criterion, delete_model_criterion, add_model_scale, delete_model_scale
 from models.scenarios import get_scenarios_completed, get_scenarios_in_progress, get_scenario_model_id
 from helpers.result import OperationResult as Result
 from models.alternatives import Alternative
 from models.criterions import Criterion
+from models.scales import Scale
 from datetime import datetime
 
 
@@ -21,7 +22,8 @@ def configure_scenarios_routes(app):
             model = get_model(model_id).data['model']
             alternatives = model.get_alternatives()
             criterias = model.get_criterias()
-            return render_template('scenarios_view.html', scenario_id=scenario_id, model=model, alternatives=alternatives, criterias=criterias)
+            scales = model.get_scales()
+            return render_template('scenarios_view.html', scenario_id=scenario_id, model=model, alternatives=alternatives, criterias=criterias, scales=scales)
 
     @app.route('/scenarios', methods=['GET', 'POST'])
     def scenarios():
@@ -48,6 +50,8 @@ def configure_scenarios_routes(app):
             flash(result.message)
             return redirect(url_for('scenarios_create'))
         
+    # Alternative routes    
+        
     @app.route('/scenarios/alternatives', methods=['GET'])
     def scenarios_alternatives():
         if request.method == 'GET':
@@ -57,22 +61,14 @@ def configure_scenarios_routes(app):
             alternatives = model.get_alternatives()
             return render_template('scenarios_alternatives.html', scenario_id=scenario_id, alternatives=alternatives)
         
-    @app.route('/scenarios/criterias', methods=['GET'])
-    def scenarios_criterias():
-        if request.method == 'GET':
-            scenario_id = request.args.get('scenario_id')
-            model_id = get_scenario_model_id(scenario_id).data['model_id']
-            model = get_model(model_id).data['model']
-            criterias = model.get_criterias()
-            return render_template('scenarios_criterias.html', scenario_id=scenario_id, criterias=criterias)
-        
     @app.route('/scenarios/add_alternative', methods=['POST'])
     def scenarios_add_alternative():
         if request.method == 'POST':
             scenario_id = request.form['scenario_id']
             model_id = get_scenario_model_id(scenario_id).data['model_id']
             new_alternative = Alternative(request.form['alternative_name'], request.form['alternative_description'])
-            add_model_alternative(model_id, new_alternative)
+            result = add_model_alternative(model_id, new_alternative)
+            flash(result.message)
             return redirect(url_for('scenarios_alternatives', scenario_id=scenario_id))
         
     @app.route('/scenarios/delete_alternative', methods=['POST'])
@@ -81,8 +77,20 @@ def configure_scenarios_routes(app):
             scenario_id = request.form['scenario_id']
             model_id = get_scenario_model_id(scenario_id).data['model_id']
             alternative_id = request.form['alternative_id']
-            delete_model_alternative(model_id, alternative_id)
+            result = delete_model_alternative(model_id, alternative_id)
+            flash(result.message)
             return redirect(url_for('scenarios_alternatives', scenario_id=scenario_id))
+        
+    # Criterion routes    
+        
+    @app.route('/scenarios/criterias', methods=['GET'])
+    def scenarios_criterias():
+        if request.method == 'GET':
+            scenario_id = request.args.get('scenario_id')
+            model_id = get_scenario_model_id(scenario_id).data['model_id']
+            model = get_model(model_id).data['model']
+            criterias = model.get_criterias()
+            return render_template('scenarios_criterias.html', scenario_id=scenario_id, criterias=criterias)    
         
     @app.route('/scenarios/add_criterion', methods=['POST'])
     def scenarios_add_criterion():
@@ -90,7 +98,8 @@ def configure_scenarios_routes(app):
             scenario_id = request.form['scenario_id']
             model_id = get_scenario_model_id(scenario_id).data['model_id']
             new_criteria = Criterion(request.form['parent_id'], request.form['name'], request.form['description'])
-            add_model_criterion(model_id, new_criteria)
+            result = add_model_criterion(model_id, new_criteria)
+            flash(result.message)
             return redirect(url_for('scenarios_criterias', scenario_id=scenario_id))
         
     @app.route('/scenarios/delete_criterion', methods=['POST'])
@@ -99,6 +108,59 @@ def configure_scenarios_routes(app):
             scenario_id = request.form['scenario_id']
             model_id = get_scenario_model_id(scenario_id).data['model_id']
             criterion_id = request.form['criterion_id']
-            delete_model_criterion(model_id, criterion_id)
+            result = delete_model_criterion(model_id, criterion_id)
+            flash(result.message)
             return redirect(url_for('scenarios_criterias', scenario_id=scenario_id))
         
+    # Scale routes    
+        
+    @app.route('/scenarios/scales', methods=['GET'])
+    def scenarios_scales():
+        if request.method == 'GET':
+            scenario_id = request.args.get('scenario_id')
+            model_id = get_scenario_model_id(scenario_id).data['model_id']
+            model = get_model(model_id).data['model']
+            scales = model.get_scales()
+            return render_template('scenarios_scales.html', scenario_id=scenario_id, scales=scales)
+    
+    @app.route('/scenarios/add_scale', methods=['POST'])
+    def scenarios_add_scale():
+        if request.method == 'POST':
+            scenario_id = request.form['scenario_id']
+            model_id = get_scenario_model_id(scenario_id).data['model_id']
+            new_scale = Scale(request.form['value'], request.form['description'])
+            result = add_model_scale(model_id, new_scale)
+            flash(result.message)
+            return redirect(url_for('scenarios_scales', scenario_id=scenario_id))
+        
+    @app.route('/scenarios/delete_scale', methods=['POST'])
+    def scenarios_delete_scale():
+        if request.method == 'POST':
+            scenario_id = request.form['scenario_id']
+            model_id = get_scenario_model_id(scenario_id).data['model_id']
+            scale_id = request.form['scale_id']
+            result = delete_model_scale(model_id, scale_id)
+            flash(result.message)
+            return redirect(url_for('scenarios_scales', scenario_id=scenario_id))
+      
+    # Options routes  
+        
+    @app.route('/scenarios/finalize', methods=['POST'])
+    def scenarios_finalize():
+        if request.method == 'POST':
+            scenario_id = request.form['scenario_id']
+            model_id = get_scenario_model_id(scenario_id).data['model_id']
+            model = get_model(model_id).data['model']
+            result = model.finalize()
+            flash(result.message)
+            return redirect(url_for('scenarios_view', scenario_id=scenario_id))
+        
+    @app.route('/scenarios/delete', methods=['POST'])
+    def scenarios_delete():
+        if request.method == 'POST':
+            scenario_id = request.form['scenario_id']
+            model_id = get_scenario_model_id(scenario_id).data['model_id']
+            model = get_model(model_id).data['model']
+            result = model.delete()
+            flash(result.message)
+            return redirect(url_for('scenarios'))

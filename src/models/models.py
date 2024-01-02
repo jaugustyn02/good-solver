@@ -3,6 +3,7 @@ from helpers.result import OperationResult as Result
 from models.scenarios import Scenario, create_scenario
 from models.alternatives import Alternative, create_alternative, delete_alternative
 from models.criterions import Criterion, create_criterion, delete_criterion
+from models.scales import Scale, create_scale, delete_scale, default_scales
 
 class Model:
     def __init__(self, name, ranking_method, aggregation_method, completeness_required, start_date, end_date, id=None):
@@ -25,6 +26,23 @@ class Model:
     
     def delete_alternative(self, alternative_id: int) -> Result:
         return delete_model_alternative(self.id, alternative_id)
+    
+    def add_criterion(self, criterion: Criterion):
+        return add_model_criterion(self.id, criterion)
+    
+    def delete_criterion(self, criterion_id: int) -> Result:
+        return delete_model_criterion(self.id, criterion_id)
+    
+    def get_scales(self):
+        return get_model_scales(self.id).data['scales']
+    
+    def finalize(self):
+        # TODO
+        return Result(False, "Finalizing not implemented yet")
+    
+    def delete(self):
+        # TODO
+        return Result(False, "Deleting not implemented yet")
         
         
 def add_model(model: Model) -> Result:
@@ -44,6 +62,9 @@ def add_model(model: Model) -> Result:
     # Add root criteria
     root_criterion = Criterion(None, "root", "")
     add_model_criterion(model_id, root_criterion)
+    
+    # Add default scales
+    add_default_scales(model_id)
     
     return Result(True, "Model created successfully", {"model_id": model_id, "scenario_id": scenario_id})
 
@@ -94,6 +115,17 @@ def get_model_criterias(model_id: int) -> Result:
     db.close()
     return Result(True, "Criteria found", {"criterias": criteria})
 
+def get_model_scales(model_id: int) -> Result:
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM Scales WHERE scale_id IN (SELECT scale_id FROM Model_Scales WHERE model_id like '%s')" % model_id)
+    scales = []
+    for id, value, description in cursor:
+        scales.append(Scale(value, description, id))
+    cursor.close()
+    db.close()
+    return Result(True, "Scales found", {"scales": scales})
+
 
 def add_model_alternative(model_id: int, alternative: Alternative) -> Result:
     create_result = create_alternative(alternative)
@@ -138,3 +170,30 @@ def delete_model_criterion(model_id: int, criterion_id: int) -> Result:
     cursor.close()
     db.close()
     return delete_criterion(criterion_id)
+
+def add_model_scale(model_id: int, scale: Scale) -> Result:
+    create_result = create_scale(scale)
+    if create_result.success:
+        scale_id = create_result.data['scale_id']
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute('INSERT INTO Model_Scales (model_id, scale_id) VALUES (%s, %s)', (model_id, scale_id))
+        db.commit()
+        cursor.close()
+        db.close()
+        return Result(True, "Scale added successfully", {"scale_id": scale_id})
+    return create_result
+
+def delete_model_scale(model_id: int, scale_id: int) -> Result:
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('DELETE FROM Model_Scales WHERE model_id = %s AND scale_id = %s', (model_id, scale_id))
+    db.commit()
+    cursor.close()
+    db.close()
+    return delete_scale(scale_id)
+
+def add_default_scales(model_id: int) -> Result:
+    for scale in default_scales:
+        add_model_scale(model_id, scale)
+    return Result(True, "Default scales added successfully")

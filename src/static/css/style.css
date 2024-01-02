@@ -36,13 +36,14 @@ li {
     margin-right: 20px;
     color: #eefd1f;
 }
-a {
-    color: #9bfff2;
-    text-decoration: none;
-}
 
 a:hover {
     color: #fff;
+}
+
+a {
+    color: #9bfff2;
+    text-decoration: none;
 }
 
 form {
@@ -61,12 +62,22 @@ input[type="text"] {
     width: 100%;
 }
 
+input[type="Float"] {
+    padding: 8px;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
 input[type="submit"] {
     padding: 10px;
     cursor: pointer;
     background-color: #4caf50;
     color: #fff;
     border: none;
+}
+
+button:hover {
+    background-color: #2f7c4f; /* this does not work because of the !important in the bootstrap css */
 }
 
 button {
@@ -77,8 +88,9 @@ button {
     border: none;
 }
 
-button:hover {
-    background-color: #2f7c4f;
+#delete-button {
+    background-color: #cf3e3e;
+    color: #ffffff;
 }
 
 select {
@@ -94,4 +106,11 @@ input[type="checkbox"] {
     margin: 0 auto;
     max-width: 800px;
     padding: 0px 20px 0px 20px;
+}
+
+#flashed_message {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #4caf50;
+    color: #ffffff;
 }
