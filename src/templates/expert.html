@@ -1,7 +1,27 @@
-{% extends 'base.html' %}
+{% extends 'components/base.html' %}
 
 {% block content %}
-    <h1>Expert</h1>
-    <p> Welcome to the expert page!</p>
+    <div class="container">
+    {% include 'components/result.html' %}
+    <h1>Welcome {{expert_name}}!</h1>
+    <h2> Join a new survey </h2>
+    <form action="/expert/join" method="post">
+        <input type="text" name="access_code" placeholder="Access code">
+        <input type="hidden" name="expert_id" value={{ expert_id }}>
+        <input type="submit" value="Join">
+    </form>
+    <h2> Your list of ongoing surveys: </h2>
+    <ul>
+        {% for scenario in surveys_ongoing %}
+            <li>{{scenario.name}} - <a href="/scenarios">start or edit your answers</a></li>
+        {% endfor %}
+    </ul>
+    <h2> Your list of ended surveys: </h2>
+    <ul>
+        {% for scenario in surveys_ended %}
+        <li>{{scenario.name}} - <a href="/scenarios">see results</a></li>
+        {% endfor %}
+    </ul>
+    </div>
 {% endblock %}
 ```

@@ -1,0 +1,7 @@
+<ul>
+    {% for criterion in criterias %}
+        {% if criterion.parent_id is not none %}
+        <li>[{{ criterion.id }}] - ParentID: {{ criterion.parent_id }}, Name: <span id="criterion">{{ criterion.name }}</span>, Description:  <span id="description">{{ criterion.description }}</span></li>
+        {% endif %}
+    {% endfor %}
+</ul>

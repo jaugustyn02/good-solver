@@ -48,7 +48,7 @@ def configure_admin_routes(app):
         if not name:
             flash('Name is required!')
         else:
-            alternative = Alternative(name, description)
+            alternative = Alternative(name, description) if description != "" else Alternative(name)
             result = create_alternative(alternative)
             flash(result.message)
         return redirect(url_for('admin'))

@@ -1,0 +1,31 @@
+{% extends 'components/base.html' %}
+{% block content %}
+<div class="container">
+    {% include 'components/result.html' %}
+    <h1>Create new scenario</h1>
+    <form method="POST" action="/scenarios">
+        <label for="name">Ranking Name:</label>
+        <input type="text" id="name" name="name">
+        <br>
+        <br>
+        <label for="ranking_method">Ranking method:</label>
+        <select id="ranking_method" name="ranking_method">
+            <option value="gmm">Geometric Mean Method</option>
+        </select>
+        <br>
+        <br>
+        <label for="aggregation_method">Aggregation method:</label>
+        <select id="aggregation_method" name="aggregation_method">
+            <option value="aip">Aggregation of Individual Priorities</option>
+        </select>
+        <br>
+        <br>
+        <label for="completness_required">Completness required:</label>
+        <input type="checkbox" id="completeness_required" name="completeness_required" value="completeness_required">
+        <br>
+        <br>
+        <input type="submit", value="Create">
+    </form>
+</div>
+{% endblock %}
+```

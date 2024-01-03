@@ -1,0 +1,5 @@
+<ul>
+    {% for alternative in alternatives %}
+    <li>[{{ alternative.id }}] - Name: <span id="alternative">{{ alternative.name }}</span>, Description:  <span id="description">{{ alternative.description }}</span></li>
+    {% endfor %}
+</ul>

@@ -1,0 +1,24 @@
+{% extends 'components/base.html' %}
+
+{% block content %}
+    <div class="container">
+    {% include 'components/result.html' %}
+    <h1>Log in to existing expert account</h1>
+    <form action="/expert" method="get">
+        <select name="expert_id">
+            {% for expert in experts %}
+                <option value="{{ expert.id }}">[{{expert.id}}] {{ expert.name }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="Log in">
+    </form>
+    <h1>Or</h1>
+    <h1>Create an expert account</h1>
+    <form action="/expert/signup" method="post">
+        <input type="text" name="name" placeholder="Name">
+        <input type="text" name="email" placeholder="Email">
+        <input type="submit" value="Sign up">
+    </form>
+    </div>
+{% endblock %}
+```

@@ -1,0 +1,40 @@
+{% extends 'components/base.html' %}
+{% block content %}
+<div class="container">
+    {% include 'components/result.html' %}
+    <h1><a href="{{ url_for('scenarios_view', scenario_id=scenario_id) }}">Scenario Panel</a></h1>
+    <h2>Details:</h2>
+    <p>Model Name: {{ model.name }}</p>
+    <p>Scenario ID: {{ scenario_id }}</p>
+    <p>Start Date: {{ model.start_date }}</p>
+    <p>Ranking method: {{ model.ranking_method|upper }}</p>
+    <p>Aggregation method: {{ model.aggregation_method|upper }}</p>
+    <p>Completeness required: {% if model.completeness_required == 1 %} Yes {% else %} No {% endif %}</p>
+    <p>Survey access code: {{ survey_code }}</p>
+    <P>Surveys completed: {{ surveys_completed }}</P>
+    <p>Experts joined: {{ experts_joined }}</p>
+    <h2>Alternatives:</h2>
+    {% include 'components/alternatives_list.html' %}
+    <p>To edit alternatives, click <a href="{{ url_for('scenarios_alternatives', scenario_id=scenario_id) }}">here.</a></p>
+    <h2>Criteria:</h2>
+    {% include 'components/criteria_list.html' %}
+    <p>To edit criteria, click <a href="{{ url_for('scenarios_criterias', scenario_id=scenario_id) }}">here.</a></p>
+    <h2>Scale:</h2>
+    {% include 'components/scale_list.html' %}
+    <p>To edit scale, click <a href="{{ url_for('scenarios_scales', scenario_id=scenario_id) }}">here.</a></p>
+    <h2>Options:</h2>
+    <form action="{{ url_for('scenarios_confirm', scenario_id=scenario_id) }}" method="post">
+        <input type="submit" value="Confirm Scenario">
+        <input type="hidden" name="scenario_id" value="{{scenario_id}}">
+    </form>
+    <form action="{{ url_for('scenarios_finalize', scenario_id=scenario_id) }}" method="post">
+        <input type="submit" value="Finalize Scenario">
+        <input type="hidden" name="scenario_id" value="{{scenario_id}}">
+    </form>
+    <form action="{{ url_for('scenarios_delete', scenario_id=scenario_id) }}" method="post">
+        <input id="delete-button" type="submit" value="Delete Scenario">
+        <input type="hidden" name="scenario_id" value="{{scenario_id}}">
+    </form>
+</div>
+{% endblock %}
+```
