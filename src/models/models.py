@@ -1,9 +1,11 @@
 from helpers.database import get_mysql_connection as get_db
 from helpers.result import OperationResult as Result
-from models.scenarios import Scenario, create_scenario
+from models.scenarios import Scenario, create_scenario, get_scenario_data_id, get_scenario_id
 from models.alternatives import Alternative, create_alternative, delete_alternative
 from models.criterions import Criterion, create_criterion, delete_criterion
 from models.scales import Scale, create_scale, delete_scale, default_scales
+from models.data_matrices import create_expert_matrices
+
 
 class Model:
     def __init__(self, name, ranking_method, aggregation_method, completeness_required, start_date, end_date, id=None):
@@ -35,10 +37,6 @@ class Model:
     
     def get_scales(self):
         return get_model_scales(self.id).data['scales']
-    
-    def finalize(self):
-        # TODO
-        return Result(False, "Finalizing not implemented yet")
     
     def delete(self):
         # TODO
@@ -211,7 +209,20 @@ def add_expert_to_model(model_id: int, expert_id: int) -> Result:
     db.commit()
     cursor.close()
     db.close()
+    
+    # Create expert data matrices
+    alternatives = get_model_alternatives(model_id).data['alternatives']
+    criterias = get_model_criterias(model_id).data['criterias']
+    
+    scenario_id = get_scenario_id(model_id).data['scenario_id']
+    data_id = get_scenario_data_id(scenario_id).data['data_id']
+    
+    result = create_expert_matrices(data_id, expert_id, alternatives, criterias)
+    if not result.success:
+        return result
+    
     return Result(True, "You have joined the survey successfully")
+
 
 def count_experts_in_model(model_id: int) -> Result:
     db = get_db()
@@ -222,3 +233,14 @@ def count_experts_in_model(model_id: int) -> Result:
         db.close()
         return Result(True, "Experts counted", {"expert_count": count[0]})
     return Result(False, "No experts found")
+
+
+def count_alternatives_in_model(model_id: int) -> Result:
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT COUNT(*) FROM Model_Alternatives WHERE model_id = %s', (model_id,))
+    for count in cursor:
+        cursor.close()
+        db.close()
+        return Result(True, "Alternatives counted", {"alternative_count": count[0]})
+    return Result(False, "No alternatives found")

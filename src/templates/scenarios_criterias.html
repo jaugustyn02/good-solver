@@ -4,13 +4,7 @@
     {% include 'components/result.html' %}
     <h1><a href="{{ url_for('scenarios_view', scenario_id=scenario_id) }}">Scenario Panel</a></h1>
     <h2>List of current criterias</h2>
-    <ul>
-        {% for criterion in criterias %}
-            {% if criterion.parent_id is not none %}
-            <li>[{{ criterion.id }}] - ParentID: {{ criterion.parent_id }}, Name: {{ criterion.name }}, Description:  {{ criterion.description }}</li>
-            {% endif %}
-        {% endfor %}
-    </ul>
+    {% include 'components/criteria_list.html' %}
     <h2> Add a new criterion</h2>
     <form action="/scenarios/add_criterion" method="post">
         <input type="text" name="name" placeholder="Name">

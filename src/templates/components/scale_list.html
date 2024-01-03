@@ -1,0 +1,5 @@
+<ul>
+    {% for scale in scales %}
+    <li>[{{ scale.id }}] - Value: <span id="scale">{{ scale.value }}</span>, Description:  <span id="description">{{ scale.description }}</span></li>
+    {% endfor %}
+</ul>

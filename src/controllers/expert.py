@@ -43,8 +43,8 @@ def configure_expert_routes(app):
                 return redirect(url_for('expert', expert_id=expert_id))
             model = result.data['model']
             result = add_expert_to_model(model.id, expert_id)
+            flash(result.message)
             if not result.success:
-                flash(result.message)
                 return redirect(url_for('expert', expert_id=expert_id))
             return redirect(url_for('expert', expert_id=expert_id))
             

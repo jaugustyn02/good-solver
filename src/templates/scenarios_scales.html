@@ -4,11 +4,7 @@
     {% include 'components/result.html' %}
     <h1><a href="{{ url_for('scenarios_view', scenario_id=scenario_id) }}">Scenario Panel</a></h1>
     <h2>Current scale values</h2>
-    <ul>
-        {% for scale in scales %}
-        <li>[{{ scale.id }}] - Value: {{ scale.value }}, Description:  {{ scale.description }}</li>
-        {% endfor %}
-    </ul>
+    {% include 'components/scale_list.html' %}
     <h2> Add a new scale value</h2>
     <form action="/scenarios/add_scale" method="post">
         <input type="Float" name="value" placeholder="Value">

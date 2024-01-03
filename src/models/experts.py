@@ -95,7 +95,6 @@ def get_expert_first_name(expert_id: int) -> str:
     return get_expert_name(expert_id).split()[0]
 
 
-# Model_Experts(id, model_id, expert_id) -> Model(id, name, ranking_method, aggregation_method, completeness_required, start_date, end_date)
 def get_expert_models_in_progress(expert_id: int) -> list:
     db = get_db()
     cursor = db.cursor()

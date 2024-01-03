@@ -1,5 +1,4 @@
 from flask import render_template, request, flash, redirect, url_for
-# from models.models import add_model, Model, get_model_name, get_model, add_model_alternative, delete_model_alternative, add_model_criterion, delete_model_criterion, add_model_scale, delete_model_scale, count_experts_in_model
 from models.scenarios import get_scenarios_completed, get_scenarios_in_progress, get_scenario_model_id
 from helpers.result import OperationResult as Result
 from helpers.encoding import encode_int
@@ -150,6 +149,17 @@ def configure_scenarios_routes(app):
             return redirect(url_for('scenarios_scales', scenario_id=scenario_id))
       
     # Options routes  
+    
+    @app.route('/scenarios/confirm', methods=['POST'])
+    def scenarios_confirm():
+        if request.method == 'POST':
+            scenario_id = request.form['scenario_id']
+            model_id = get_scenario_model_id(scenario_id).data['model_id']
+            model = models.get_model(model_id).data['model']
+            result = model.confirm()
+            flash(result.message)
+            return redirect(url_for('scenarios_view', scenario_id=scenario_id))
+        
         
     @app.route('/scenarios/finalize', methods=['POST'])
     def scenarios_finalize():

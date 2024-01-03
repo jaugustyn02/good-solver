@@ -33,13 +33,13 @@ def delete_criterion(criterion_id: int) -> Result:
     db.close()
     return Result(True, "Alternative deleted successfully")
 
-def get_criteria_id(name_):
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute("SELECT * FROM Criterias WHERE name = %s", (name_,))
-    if cursor.fetchone() is None:
-        return Result(False, 'Criteria is not present!')
-    for criterion_id, parent_criterion, name, description in cursor:
-        cursor.close()
-        db.close()
-        return criterion_id
+# def get_criteria_id(name_):
+#     db = get_db()
+#     cursor = db.cursor()
+#     cursor.execute("SELECT * FROM Criterias WHERE name = %s", (name_,))
+#     if cursor.fetchone() is None:
+#         return Result(False, 'Criteria is not present!')
+#     for criterion_id, parent_criterion, name, description in cursor:
+#         cursor.close()
+#         db.close()
+#         return criterion_id

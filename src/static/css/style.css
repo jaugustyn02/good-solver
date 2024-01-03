@@ -14,20 +14,22 @@ body {
 }
 
 h1 {
-    color: #ddff81;
+    /* color: #ddff81; */
+    color: #eafc49;
 }
 
 h2 {
-    color: #ddff81;
+    /* color: #ddff81; */
+    color: #edfd5c;
 }
 
 p {
-    color: #eefd1f;
+    /* color: #eefd1f; */
+    color: #f3fc80;
 }
 
 ul {
     list-style-type: none;
-    
     top: 0;
     width: 100%;
 }
@@ -35,7 +37,8 @@ ul {
 li {
     margin-right: 20px;
     margin-top: 3px;
-    color: #eefd1f;
+    /* color: #eefd1f; */
+    color: #f8ea68;
 }
 
 a:hover {
@@ -114,4 +117,22 @@ input[type="checkbox"] {
     padding: 10px;
     background-color: #4caf50;
     color: #ffffff;
+}
+
+#scale {
+    /* color: #ff9100; */
+    color: #00ffaa;
+}
+
+#alternative {
+    /* color: #ff9100; */
+    color: #00ffaa;
+}
+
+#criterion {
+    color: #00ffaa;
+}
+
+#description{
+    color: #84fd95;
 }
