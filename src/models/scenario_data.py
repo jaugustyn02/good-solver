@@ -16,7 +16,7 @@ def create_scenario_data(scenario_id: int) -> Result:
     data_id = cursor.lastrowid
     db.commit()
     cursor.close()
-    cursor = db.cursor()
+    db.close()
     return Result(True, "Scenario data created successfully", {"data_id": data_id})
     
     
