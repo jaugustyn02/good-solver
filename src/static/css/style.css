@@ -112,6 +112,12 @@ input[type="checkbox"] {
     padding: 0px 20px 0px 20px;
 }
 
+.altcontainer {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
 #flashed_message {
     margin-top: 20px;
     padding: 10px;

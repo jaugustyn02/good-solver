@@ -1,10 +1,11 @@
 from helpers.database import get_mysql_connection as get_db
 from helpers.result import OperationResult as Result
-from models.scenarios import Scenario, create_scenario, get_scenario_data_id, get_scenario_id
+from models.scenarios import Scenario, create_scenario, get_scenario_data_id, get_scenario_id, set_scenario_in_progress
 from models.alternatives import Alternative, create_alternative, delete_alternative
 from models.criterions import Criterion, create_criterion, delete_criterion
 from models.scales import Scale, create_scale, delete_scale, default_scales
-from models.data_matrices import create_expert_matrices
+from models.data_matrices import create_expert_matrices, find_empty_matrix_field
+from datetime import datetime
 
 
 class Model:
@@ -37,10 +38,15 @@ class Model:
     
     def get_scales(self):
         return get_model_scales(self.id).data['scales']
-    
-    def delete(self):
-        # TODO
-        return Result(False, "Deleting not implemented yet")
+
+    def confirm(self) -> Result:
+        return Result(True, "Scenario confirmed")
+
+    def finalize(self) -> Result:
+        return finalize_model(self.id)
+
+    def delete(self) -> Result:
+        return delete_model(self.id)
         
         
 def add_model(model: Model) -> Result:
@@ -66,9 +72,43 @@ def add_model(model: Model) -> Result:
     
     return Result(True, "Model created successfully", {"model_id": model_id, "scenario_id": scenario_id})
 
+
 def delete_model(model_id: int) -> Result:
-    # TODO
-    return Result(True, "Deleteting not available yet")
+    scenario_id = get_scenario_id(model_id)
+    data_id = get_scenario_data_id(scenario_id)
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("DELETE FROM Model_Scales WHERE model_id like '%s'" % model_id)
+    cursor.execute("DELETE FROM Model_Alternatives WHERE model_id like '%s'" % model_id)
+    cursor.execute("DELETE FROM Model_Criterias WHERE model_id like '%s'" % model_id)
+    cursor.execute("DELETE FROM Model_Experts WHERE ranking_id like '%s'" % model_id)
+    cursor.execute("DELETE FROM Data_Matrices WHERE data_id like '%s'" % data_id)
+    cursor.execute("DELETE FROM Scenario_Data WHERE scenario_id like '%s'" % scenario_id)
+    cursor.execute("DELETE FROM Decision_Scenarios WHERE scenario_id like '%s'" % scenario_id)
+    cursor.execute("DELETE FROM Decision_Scenarios WHERE model_id like '%s'" % model_id)
+    cursor.execute("DELETE FROM Models WHERE model_id like '%s'" % model_id)
+    db.commit()
+    cursor.close()
+    db.close()
+    return Result(True, "Model deleted successfully")
+
+
+def finalize_model(model_id: int) -> Result:
+    scenario = get_scenario_id(model_id)
+    if not scenario.success:
+        return Result(False, "Scenario not found")
+    scenario_id = scenario.data['scenario_id']
+    result = set_scenario_in_progress(scenario_id, False)
+    if not result.success:
+        return Result(False, "Scenario couldn't be finalized")
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('UPDATE Models SET end_date = %s WHERE model_id = %s', (datetime.now(), model_id))
+    db.commit()
+    cursor.close()
+    db.close()
+    return Result(True, "Model finalized successfully")
+
 
 def get_model(model_id: int) -> Result:
     db = get_db()
@@ -224,6 +264,18 @@ def add_expert_to_model(model_id: int, expert_id: int) -> Result:
     return Result(True, "You have joined the survey successfully")
 
 
+def get_model_experts_id(model_id: int):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT * FROM Experts WHERE expert_id IN (SELECT expert_id FROM Model_Experts WHERE ranking_id = %s)',(model_id,))
+    experts_id = []
+    for id, name, address in cursor:
+        experts_id.append(id)
+    cursor.close()
+    db.close()
+    return experts_id
+
+
 def count_experts_in_model(model_id: int) -> Result:
     db = get_db()
     cursor = db.cursor()
@@ -244,3 +296,15 @@ def count_alternatives_in_model(model_id: int) -> Result:
         db.close()
         return Result(True, "Alternatives counted", {"alternative_count": count[0]})
     return Result(False, "No alternatives found")
+
+
+def surveys_completed_count(model_id: int) -> int:
+    count = 0
+    model = get_model(model_id).data['model']
+    experts_id = get_model_experts_id(model_id)
+    scenario_id = get_scenario_id(model_id).data['scenario_id']
+    for expert_id in experts_id:
+        res = find_empty_matrix_field(expert_id, scenario_id, model.get_criterias(), model.get_alternatives())
+        if not res.success:
+            count += 1
+    return count

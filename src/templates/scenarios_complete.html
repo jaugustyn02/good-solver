@@ -1,0 +1,19 @@
+{% extends 'components/base.html' %}
+
+{% block content %}
+    <div class="container">
+    {% include 'components/result.html' %}
+    <h1>Welcome {{expert_name}}!</h1>
+    <div class="altcontainer">
+        <h2>{{alt1.name}}</h2>
+        <h2>{{alt2.name}}</h2>
+    </div>
+    <h2>{{criterion.name}}</h2>
+    <form action="{{ url_for('scenarios_complete', model_id=model_id, expert_id=expert_id, expert_name=expert_name, scenario_id=scenario_id, alternative1_id=alt1.id, alternative2_id=alt2.id, criterion_id=criterion.id) }}" method="post">
+        <input type="range" name="rangeSlider" min="{{scales[0].value}}" max="{{scales[-1].value}}" value="{{scales[0].value}}" oninput="rangeValue.innerText = this.value">
+        <p id="rangeValue">{{scales[0].value}}</p>
+        <input type="submit" value="Submit my answer">
+    </form>
+    </div>
+{% endblock %}
+```
