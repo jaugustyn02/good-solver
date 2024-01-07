@@ -131,6 +131,18 @@ def get_model_name(model_id: int) -> Result:
         return Result(True, "Model found", {"model_name": name[0]})
     return Result(False, 'Model is not present!')
 
+
+def get_model_id(model_name: str) -> Result:
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT model_id FROM Models WHERE name like '%s'" % model_name)
+    for model_id in cursor:
+        cursor.close()
+        db.close()
+        return Result(True, "Model found", {"model_id": model_id[0]})
+    return Result(False, 'Model is not present!')
+
+
 def get_model_alternatives(model_id: int) -> Result:
     db = get_db()
     cursor = db.cursor()

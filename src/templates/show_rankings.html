@@ -2,8 +2,8 @@
 
 {% block content %}
     <div class="container">
-    <h1>Your ranking</h1>
-    <p> {{ ranking_name }} </p>
+    <h1>{{ ranking_name }}</h1>
+    <p>Your results!</p>
     <ol>
         {% for name in ranking %}
         <li> {{name}} </li>

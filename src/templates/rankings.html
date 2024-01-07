@@ -8,12 +8,11 @@
           <label>
               <select name="sel" id="sel">
                   {% for arg in arguments %}
-                    <option value="{{ arg }}">{{ arg }}</option>
+                    <option value="{{ arg.name }}">{{ arg.name }}</option>
                   {% endfor %}
               </select>
           </label>
-          <br>
-        <input type="submit">
+        <input type="submit" value="Show result">
     </form>
     </div>
 {% endblock %}
