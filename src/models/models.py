@@ -5,6 +5,7 @@ from models.alternatives import Alternative, create_alternative, delete_alternat
 from models.criterions import Criterion, create_criterion, delete_criterion
 from models.scales import Scale, create_scale, delete_scale, default_scales
 from models.data_matrices import create_expert_matrices, find_empty_matrix_field
+from models.scenario_data import set_scenario_data_in_progress
 from datetime import datetime
 
 
@@ -40,7 +41,7 @@ class Model:
         return get_model_scales(self.id).data['scales']
 
     def confirm(self) -> Result:
-        return Result(True, "Scenario confirmed")
+        return confirm_model(self.id)
 
     def finalize(self) -> Result:
         return finalize_model(self.id)
@@ -110,6 +111,11 @@ def finalize_model(model_id: int) -> Result:
     return Result(True, "Model finalized successfully")
 
 
+def confirm_model(model_id: int):
+    scenario_id = get_scenario_id(model_id).data['scenario_id']
+    return set_scenario_data_in_progress(scenario_id, True)
+
+
 def get_model(model_id: int) -> Result:
     db = get_db()
     cursor = db.cursor()
@@ -130,6 +136,18 @@ def get_model_name(model_id: int) -> Result:
         db.close()
         return Result(True, "Model found", {"model_name": name[0]})
     return Result(False, 'Model is not present!')
+
+
+def get_model_id(model_name: str) -> Result:
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT model_id FROM Models WHERE name like '%s'" % model_name)
+    for model_id in cursor:
+        cursor.close()
+        db.close()
+        return Result(True, "Model found", {"model_id": model_id[0]})
+    return Result(False, 'Model is not present!')
+
 
 def get_model_alternatives(model_id: int) -> Result:
     db = get_db()
