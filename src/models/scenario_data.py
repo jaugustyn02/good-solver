@@ -12,7 +12,7 @@ class ScenarioData:
 def create_scenario_data(scenario_id: int) -> Result:
     db = get_db()
     cursor = db.cursor()
-    cursor.execute('INSERT INTO Scenario_Data (scenario_id, in_progress) VALUES (%s, %s)', (scenario_id, True))
+    cursor.execute('INSERT INTO Scenario_Data (scenario_id, in_progress) VALUES (%s, %s)', (scenario_id, False))
     data_id = cursor.lastrowid
     db.commit()
     cursor.close()

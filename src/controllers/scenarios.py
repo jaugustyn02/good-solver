@@ -80,8 +80,10 @@ def configure_scenarios_routes(app):
             survey_code = encode_int(int(model_id))
             experts_joined = models.count_experts_in_model(model_id).data['expert_count']
             surveys_completed = models.surveys_completed_count(model_id)
-            return render_template('scenarios_view.html', scenario_id=scenario_id, model=model, alternatives=alternatives, criterias=criterias,
-                                   scales=scales, survey_code=survey_code, experts_joined=experts_joined, surveys_completed=surveys_completed)
+            confirmed = get_scenario_data(scenario_id).data['data'].in_progress
+            return render_template('scenarios_view.html', scenario_id=scenario_id, model=model,
+                                   alternatives=alternatives, criterias=criterias,scales=scales, survey_code=survey_code,
+                                   experts_joined=experts_joined, surveys_completed=surveys_completed, confirmed=confirmed)
 
     @app.route('/scenarios', methods=['GET', 'POST'])
     def scenarios():
