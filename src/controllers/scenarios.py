@@ -1,10 +1,13 @@
 from flask import render_template, request, flash, redirect, url_for
-from models.scenarios import get_scenarios_completed, get_scenarios_in_progress, get_scenario_model_id
+from models.scenarios import get_scenarios_completed, get_scenarios_in_progress, get_scenario_model_id, get_scenario_id
 from helpers.result import OperationResult as Result
 from helpers.encoding import encode_int
-from models.alternatives import Alternative
+from models.alternatives import Alternative, get_alternative
+from models.data_matrices import find_empty_matrix_field, get_data_matrix
+from models.scenario_data import get_scenario_data
 from models.criterions import Criterion
 from models.scales import Scale
+from models.matrix_element import MatrixElement, create_matrix_element
 from datetime import datetime
 import models.models as models
 
@@ -14,6 +17,56 @@ def configure_scenarios_routes(app):
     def scenarios_create():
         if request.method == 'GET':
             return render_template('scenarios_create.html')
+
+    @app.route('/scenarios/complete', methods=['GET', 'POST'])
+    def scenarios_complete():
+        if request.method == 'POST':
+            model_id = request.args.get('model_id')
+            expert_id = request.args.get('expert_id')
+            expert_name = request.args.get('expert_name')
+            scenario_id = request.args.get('scenario_id')
+            model = models.get_model(model_id).data['model']
+            scales = model.get_scales()
+
+            slider_value = request.form['rangeSlider']
+            criterion_id = request.args.get('criterion_id')
+            alt1_id = request.args.get('alternative1_id')
+            alt2_id = request.args.get('alternative2_id')
+            data = get_scenario_data(scenario_id)
+            data_id = data.data['data'].id
+            data_matrix = get_data_matrix(data_id, expert_id, criterion_id).data['data']
+            create_matrix_element(MatrixElement(data_matrix.id,alt1_id,alt2_id,slider_value))
+            create_matrix_element(MatrixElement(data_matrix.id,alt2_id,alt1_id,1/float(slider_value)))
+
+            res = find_empty_matrix_field(expert_id, scenario_id, model.get_criterias(), model.get_alternatives())
+            if res.success:
+                alt1_id, alt2_id, criterion = res.data['data']
+                alt1 = get_alternative(alt1_id).data['alternative']
+                alt2 = get_alternative(alt2_id).data['alternative']
+                return render_template('scenarios_complete.html', scenario_id=scenario_id, expert_id=expert_id,
+                                       model_id=model_id, scales=scales, expert_name=expert_name, model=model,
+                                       alt1=alt1, alt2=alt2, criterion=criterion)
+            else:
+                flash("Thank you for filling out the survey")
+                return redirect(url_for('scenarios'))
+        else:
+            model_id = request.args.get('model_id')
+            expert_id = request.args.get('expert_id')
+            expert_name = request.args.get('expert_name')
+            scenario_id = get_scenario_id(model_id).data['scenario_id']
+            model = models.get_model(model_id).data['model']
+            scales = model.get_scales()
+            res = find_empty_matrix_field(expert_id, scenario_id, model.get_criterias(), model.get_alternatives())
+            if res.success:
+                alt1_id, alt2_id, criterion = res.data['data']
+                alt1 = get_alternative(alt1_id).data['alternative']
+                alt2 = get_alternative(alt2_id).data['alternative']
+                return render_template('scenarios_complete.html', scenario_id=scenario_id, expert_id=expert_id,
+                                       model_id=model_id, scales=scales, expert_name=expert_name, model=model,
+                                       alt1=alt1, alt2=alt2, criterion=criterion)
+            else:
+                flash("Thank you for filling out the survey")
+                return redirect(url_for('scenarios'))
         
     @app.route('/scenarios/view', methods=['GET', 'POST'])
     def scenarios_view():
@@ -26,7 +79,7 @@ def configure_scenarios_routes(app):
             scales = model.get_scales()
             survey_code = encode_int(int(model_id))
             experts_joined = models.count_experts_in_model(model_id).data['expert_count']
-            surveys_completed = 0 #TODO
+            surveys_completed = models.surveys_completed_count(model_id)
             return render_template('scenarios_view.html', scenario_id=scenario_id, model=model, alternatives=alternatives, criterias=criterias,
                                    scales=scales, survey_code=survey_code, experts_joined=experts_joined, surveys_completed=surveys_completed)
 
@@ -64,6 +117,10 @@ def configure_scenarios_routes(app):
             model_id = get_scenario_model_id(scenario_id).data['model_id']
             model = models.get_model(model_id).data['model']
             alternatives = model.get_alternatives()
+            expert_count = models.count_experts_in_model(model_id)
+            if expert_count.success and expert_count.data['expert_count'] > 0:
+                flash("The survey has started, the scenario can't be edited")
+                return redirect(url_for('scenarios'))
             return render_template('scenarios_alternatives.html', scenario_id=scenario_id, alternatives=alternatives)
         
     @app.route('/scenarios/add_alternative', methods=['POST'])
@@ -95,6 +152,10 @@ def configure_scenarios_routes(app):
             model_id = get_scenario_model_id(scenario_id).data['model_id']
             model = models.get_model(model_id).data['model']
             criterias = model.get_criterias()
+            expert_count = models.count_experts_in_model(model_id)
+            if expert_count.success and expert_count.data['expert_count'] > 0:
+                flash("The survey has started, the scenario can't be edited")
+                return redirect(url_for('scenarios'))
             return render_template('scenarios_criterias.html', scenario_id=scenario_id, criterias=criterias)    
         
     @app.route('/scenarios/add_criterion', methods=['POST'])
@@ -126,6 +187,10 @@ def configure_scenarios_routes(app):
             model_id = get_scenario_model_id(scenario_id).data['model_id']
             model = models.get_model(model_id).data['model']
             scales = model.get_scales()
+            expert_count = models.count_experts_in_model(model_id)
+            if expert_count.success and expert_count.data['expert_count'] > 0:
+                flash("The survey has started, the scenario can't be edited")
+                return redirect(url_for('scenarios'))
             return render_template('scenarios_scales.html', scenario_id=scenario_id, scales=scales)
     
     @app.route('/scenarios/add_scale', methods=['POST'])

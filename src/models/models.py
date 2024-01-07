@@ -4,7 +4,7 @@ from models.scenarios import Scenario, create_scenario, get_scenario_data_id, ge
 from models.alternatives import Alternative, create_alternative, delete_alternative
 from models.criterions import Criterion, create_criterion, delete_criterion
 from models.scales import Scale, create_scale, delete_scale, default_scales
-from models.data_matrices import create_expert_matrices
+from models.data_matrices import create_expert_matrices, find_empty_matrix_field
 from datetime import datetime
 
 
@@ -264,6 +264,18 @@ def add_expert_to_model(model_id: int, expert_id: int) -> Result:
     return Result(True, "You have joined the survey successfully")
 
 
+def get_model_experts_id(model_id: int):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT * FROM Experts WHERE expert_id IN (SELECT expert_id FROM Model_Experts WHERE ranking_id = %s)',(model_id,))
+    experts_id = []
+    for id, name, address in cursor:
+        experts_id.append(id)
+    cursor.close()
+    db.close()
+    return experts_id
+
+
 def count_experts_in_model(model_id: int) -> Result:
     db = get_db()
     cursor = db.cursor()
@@ -284,3 +296,15 @@ def count_alternatives_in_model(model_id: int) -> Result:
         db.close()
         return Result(True, "Alternatives counted", {"alternative_count": count[0]})
     return Result(False, "No alternatives found")
+
+
+def surveys_completed_count(model_id: int) -> int:
+    count = 0
+    model = get_model(model_id).data['model']
+    experts_id = get_model_experts_id(model_id)
+    scenario_id = get_scenario_id(model_id).data['scenario_id']
+    for expert_id in experts_id:
+        res = find_empty_matrix_field(expert_id, scenario_id, model.get_criterias(), model.get_alternatives())
+        if not res.success:
+            count += 1
+    return count
