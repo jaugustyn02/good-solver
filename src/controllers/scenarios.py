@@ -28,16 +28,24 @@ def configure_scenarios_routes(app):
             model = models.get_model(model_id).data['model']
             scales = model.get_scales()
 
-            slider_value = request.form['rangeSlider']
+            slider_value = int(request.form['rangeSlider'])
             criterion_id = request.args.get('criterion_id')
             alt1_id = request.args.get('alternative1_id')
             alt2_id = request.args.get('alternative2_id')
             data = get_scenario_data(scenario_id)
             data_id = data.data['data'].id
             data_matrix = get_data_matrix(data_id, expert_id, criterion_id).data['data']
-            create_matrix_element(MatrixElement(data_matrix.id,alt1_id,alt2_id,slider_value))
-            create_matrix_element(MatrixElement(data_matrix.id,alt2_id,alt1_id,1/float(slider_value)))
-
+            
+            # slider_value is from range 1-scales_length to scales_length-1, it represents the index of the scale and which alternative is better
+            if slider_value < 0:
+                scale_value = scales[1-int(slider_value)].value
+                create_matrix_element(MatrixElement(data_matrix.id,alt1_id,alt2_id, float(scale_value)))
+                create_matrix_element(MatrixElement(data_matrix.id,alt2_id,alt1_id,1 / float(scale_value)))
+            else:
+                scale_value = scales[int(slider_value)].value
+                create_matrix_element(MatrixElement(data_matrix.id,alt1_id,alt2_id,1 / float(scale_value)))
+                create_matrix_element(MatrixElement(data_matrix.id,alt2_id,alt1_id,float(scale_value)))
+                
             res = find_empty_matrix_field(expert_id, scenario_id, model.get_criterias(), model.get_alternatives())
             if res.success:
                 alt1_id, alt2_id, criterion = res.data['data']
