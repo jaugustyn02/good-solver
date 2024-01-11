@@ -37,12 +37,11 @@ def configure_scenarios_routes(app):
             data_matrix = get_data_matrix(data_id, expert_id, criterion_id).data['data']
             
             # slider_value is from range 1-scales_length to scales_length-1, it represents the index of the scale and which alternative is better
+            scale_value = scales[abs(int(slider_value))].value
             if slider_value < 0:
-                scale_value = scales[1-int(slider_value)].value
                 create_matrix_element(MatrixElement(data_matrix.id,alt1_id,alt2_id, float(scale_value)))
                 create_matrix_element(MatrixElement(data_matrix.id,alt2_id,alt1_id,1 / float(scale_value)))
             else:
-                scale_value = scales[int(slider_value)].value
                 create_matrix_element(MatrixElement(data_matrix.id,alt1_id,alt2_id,1 / float(scale_value)))
                 create_matrix_element(MatrixElement(data_matrix.id,alt2_id,alt1_id,float(scale_value)))
                 
