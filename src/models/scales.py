@@ -41,15 +41,15 @@ def create_scale(scale: Scale) -> dict:
     db.close()
     return Result(True, "Scale created successfully", {"scale_id": scale_id})
 
-def delete_scale(id: int) -> dict:
+def delete_scale(scale_id: int) -> dict:
     db = get_db()
     cursor = db.cursor()
     
-    cursor.execute("SELECT * FROM Scales WHERE scale_id = %s", (id,))
-    if cursor.fetchone() is None:
-        return Result(False, 'Scale is not present!')
+    cursor.execute("SELECT * FROM Model_Scales WHERE scale_id = '%s'" % scale_id)
+    if cursor.fetchone() is not None:
+        return Result(False, 'Scale is used in a model!')
     
-    cursor.execute('DELETE FROM Scales WHERE scale_id = %s', (id,))
+    cursor.execute('DELETE FROM Scales WHERE scale_id = %s', (scale_id,))
     db.commit()
     cursor.close()
     db.close()

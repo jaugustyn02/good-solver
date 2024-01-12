@@ -1,7 +1,7 @@
 from helpers.database import get_mysql_connection as get_db
 from helpers.result import OperationResult as Result
-from models.scenario_data import get_scenario_data
-from models.matrix_element import MatrixElement, create_matrix_element, get_matrix_element
+# from models.scenario_data import get_scenario_data
+from models.matrix_element import get_matrix_element
 from collections import defaultdict
 
 class DataMatrix:
@@ -53,8 +53,19 @@ def get_data_matrix(data_id: int, expert_id: int, criterion_id: int) -> Result:
 
 
 def find_empty_matrix_field(expert_id: int, scenario_id: int, criterias: list, alternatives: list) -> Result:
-    data = get_scenario_data(scenario_id)
-    data_id = data.data['data'].id
+    # data = get_scenario_data(scenario_id)
+    # data_id = data.data['data'].id
+    
+    data_id = None
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM Scenario_Data WHERE scenario_id like '%s'" % scenario_id)
+    for id, scenario_id, in_progress in cursor:
+        cursor.close()
+        db.close()
+        data_id = id
+        break
+    
     for criterion in criterias:
         data_matrix = get_data_matrix(data_id, expert_id, criterion.id)
         if data_matrix.success:
@@ -66,3 +77,19 @@ def find_empty_matrix_field(expert_id: int, scenario_id: int, criterias: list, a
                         if matrix_element.success is False:
                             return Result(True, "Successfully found matrix elements", {'data': [alt1.id, alt2.id, criterion]})
     return Result(False, "No empty matrix fields")
+
+
+def delete_matrix(matrix_id: int) -> Result:
+    # Delete matrix elements
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('DELETE FROM Data_Matrix_Element WHERE matrix_id = %s', (matrix_id,))
+    db.commit()
+    cursor.close()
+    # Delete matrix
+    cursor = db.cursor()
+    cursor.execute('DELETE FROM Data_Matrices WHERE id = %s', (matrix_id,))
+    db.commit()
+    cursor.close()
+    db.close()
+    return Result(True, "Matrix deleted successfully")

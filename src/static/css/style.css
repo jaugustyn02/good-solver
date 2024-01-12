@@ -80,9 +80,9 @@ input[type="submit"] {
     border: none;
 }
 
-button:hover {
-    background-color: #2f7c4f; /* this does not work because of the !important in the bootstrap css */
-}
+/* button:hover {
+    background-color: #5acc5e;
+} */
 
 button {
     padding: 10px;

@@ -1,5 +1,5 @@
 from flask import render_template, request, flash, redirect, url_for
-from models.scenarios import get_scenarios_completed, get_scenarios_in_progress, get_scenario_model_id, get_scenario_id
+# from models.scenarios import get_scenarios_completed, get_scenarios_in_progress, get_scenario_model_id, get_scenario_id
 from helpers.result import OperationResult as Result
 from helpers.encoding import encode_int
 from models.alternatives import Alternative, get_alternative
@@ -10,6 +10,7 @@ from models.scales import Scale
 from models.matrix_element import MatrixElement, create_matrix_element
 from datetime import datetime
 import models.models as models
+import models.scenarios as Scenarios
 
 
 def configure_scenarios_routes(app):
@@ -17,6 +18,17 @@ def configure_scenarios_routes(app):
     def scenarios_create():
         if request.method == 'GET':
             return render_template('scenarios_create.html')
+        
+    @app.route('/scenarios/delete/confirm', methods=['GET', 'POST'])
+    def scenarios_delete_confirm():
+        if request.method == 'POST':
+            scenario_id = request.args.get('scenario_id')
+            result = Scenarios.delete_scenario(scenario_id)
+            flash(result.message)
+            return redirect(url_for('scenarios'))
+        else:
+            scenario_id = request.args.get('scenario_id')
+            return render_template('scenarios_delete_confirm.html', scenario_id=scenario_id)
 
     @app.route('/scenarios/complete', methods=['GET', 'POST'])
     def scenarios_complete():
@@ -60,7 +72,7 @@ def configure_scenarios_routes(app):
             model_id = request.args.get('model_id')
             expert_id = request.args.get('expert_id')
             expert_name = request.args.get('expert_name')
-            scenario_id = get_scenario_id(model_id).data['scenario_id']
+            scenario_id = Scenarios.get_scenario_id(model_id).data['scenario_id']
             model = models.get_model(model_id).data['model']
             scales = model.get_scales()
             res = find_empty_matrix_field(expert_id, scenario_id, model.get_criterias(), model.get_alternatives())
@@ -79,7 +91,7 @@ def configure_scenarios_routes(app):
     def scenarios_view():
         if request.method == 'GET':
             scenario_id = request.args.get('scenario_id')
-            model_id = get_scenario_model_id(scenario_id).data['model_id']
+            model_id = Scenarios.get_scenario_model_id(scenario_id).data['model_id']
             model = models.get_model(model_id).data['model']
             alternatives = model.get_alternatives()
             criterias = model.get_criterias()
@@ -95,11 +107,11 @@ def configure_scenarios_routes(app):
     @app.route('/scenarios', methods=['GET', 'POST'])
     def scenarios():
         if request.method == 'GET':
-            scenarios_in_progress = get_scenarios_in_progress()
-            scenarios_completed = get_scenarios_completed()
+            scenarios_in_progress = Scenarios.get_scenarios_in_progress()
+            scenarios_completed = Scenarios.get_scenarios_completed()
             scenarios_id = [scenario.id for scenario in scenarios_in_progress + scenarios_completed]
             scenarios_names = {scenario_id : models.get_model_name(
-                    (get_scenario_model_id(scenario_id)).data['model_id']
+                    (Scenarios.get_scenario_model_id(scenario_id)).data['model_id']
                 ).data['model_name'] for scenario_id in scenarios_id
             }
             return render_template('scenarios.html', scenarios_in_progress=scenarios_in_progress, scenarios_completed=scenarios_completed, scenarios_names=scenarios_names)
@@ -123,7 +135,7 @@ def configure_scenarios_routes(app):
     def scenarios_alternatives():
         if request.method == 'GET':
             scenario_id = request.args.get('scenario_id')
-            model_id = get_scenario_model_id(scenario_id).data['model_id']
+            model_id = Scenarios.get_scenario_model_id(scenario_id).data['model_id']
             model = models.get_model(model_id).data['model']
             alternatives = model.get_alternatives()
             expert_count = models.count_experts_in_model(model_id)
@@ -136,7 +148,7 @@ def configure_scenarios_routes(app):
     def scenarios_add_alternative():
         if request.method == 'POST':
             scenario_id = request.form['scenario_id']
-            model_id = get_scenario_model_id(scenario_id).data['model_id']
+            model_id = Scenarios.get_scenario_model_id(scenario_id).data['model_id']
             new_alternative = Alternative(request.form['alternative_name'], request.form['alternative_description'])
             result = models.add_model_alternative(model_id, new_alternative)
             flash(result.message)
@@ -146,7 +158,7 @@ def configure_scenarios_routes(app):
     def scenarios_delete_alternative():
         if request.method == 'POST':
             scenario_id = request.form['scenario_id']
-            model_id = get_scenario_model_id(scenario_id).data['model_id']
+            model_id = Scenarios.get_scenario_model_id(scenario_id).data['model_id']
             alternative_id = request.form['alternative_id']
             result = models.delete_model_alternative(model_id, alternative_id)
             flash(result.message)
@@ -158,7 +170,7 @@ def configure_scenarios_routes(app):
     def scenarios_criterias():
         if request.method == 'GET':
             scenario_id = request.args.get('scenario_id')
-            model_id = get_scenario_model_id(scenario_id).data['model_id']
+            model_id = Scenarios.get_scenario_model_id(scenario_id).data['model_id']
             model = models.get_model(model_id).data['model']
             criterias = model.get_criterias()
             expert_count = models.count_experts_in_model(model_id)
@@ -171,7 +183,7 @@ def configure_scenarios_routes(app):
     def scenarios_add_criterion():
         if request.method == 'POST':
             scenario_id = request.form['scenario_id']
-            model_id = get_scenario_model_id(scenario_id).data['model_id']
+            model_id = Scenarios.get_scenario_model_id(scenario_id).data['model_id']
             new_criteria = Criterion(request.form['parent_id'], request.form['name'], request.form['description'])
             result = models.add_model_criterion(model_id, new_criteria)
             flash(result.message)
@@ -181,7 +193,7 @@ def configure_scenarios_routes(app):
     def scenarios_delete_criterion():
         if request.method == 'POST':
             scenario_id = request.form['scenario_id']
-            model_id = get_scenario_model_id(scenario_id).data['model_id']
+            model_id = Scenarios.get_scenario_model_id(scenario_id).data['model_id']
             criterion_id = request.form['criterion_id']
             result = models.delete_model_criterion(model_id, criterion_id)
             flash(result.message)
@@ -193,7 +205,7 @@ def configure_scenarios_routes(app):
     def scenarios_scales():
         if request.method == 'GET':
             scenario_id = request.args.get('scenario_id')
-            model_id = get_scenario_model_id(scenario_id).data['model_id']
+            model_id = Scenarios.get_scenario_model_id(scenario_id).data['model_id']
             model = models.get_model(model_id).data['model']
             scales = model.get_scales()
             expert_count = models.count_experts_in_model(model_id)
@@ -206,7 +218,7 @@ def configure_scenarios_routes(app):
     def scenarios_add_scale():
         if request.method == 'POST':
             scenario_id = request.form['scenario_id']
-            model_id = get_scenario_model_id(scenario_id).data['model_id']
+            model_id = Scenarios.get_scenario_model_id(scenario_id).data['model_id']
             new_scale = Scale(request.form['value'], request.form['description'])
             result = models.add_model_scale(model_id, new_scale)
             flash(result.message)
@@ -216,7 +228,7 @@ def configure_scenarios_routes(app):
     def scenarios_delete_scale():
         if request.method == 'POST':
             scenario_id = request.form['scenario_id']
-            model_id = get_scenario_model_id(scenario_id).data['model_id']
+            model_id = Scenarios.get_scenario_model_id(scenario_id).data['model_id']
             scale_id = request.form['scale_id']
             result = models.delete_model_scale(model_id, scale_id)
             flash(result.message)
@@ -228,7 +240,7 @@ def configure_scenarios_routes(app):
     def scenarios_confirm():
         if request.method == 'POST':
             scenario_id = request.form['scenario_id']
-            model_id = get_scenario_model_id(scenario_id).data['model_id']
+            model_id = Scenarios.get_scenario_model_id(scenario_id).data['model_id']
             model = models.get_model(model_id).data['model']
             result = model.confirm()
             flash(result.message)
@@ -239,18 +251,18 @@ def configure_scenarios_routes(app):
     def scenarios_finalize():
         if request.method == 'POST':
             scenario_id = request.form['scenario_id']
-            model_id = get_scenario_model_id(scenario_id).data['model_id']
+            model_id = Scenarios.get_scenario_model_id(scenario_id).data['model_id']
             model = models.get_model(model_id).data['model']
             result = model.finalize()
             flash(result.message)
             return redirect(url_for('scenarios_view', scenario_id=scenario_id))
         
-    @app.route('/scenarios/delete', methods=['POST'])
-    def scenarios_delete():
-        if request.method == 'POST':
-            scenario_id = request.form['scenario_id']
-            model_id = get_scenario_model_id(scenario_id).data['model_id']
-            model = models.get_model(model_id).data['model']
-            result = model.delete()
-            flash(result.message)
-            return redirect(url_for('scenarios'))
+    # @app.route('/scenarios/delete', methods=['POST'])
+    # def scenarios_delete():
+    #     if request.method == 'POST':
+    #         scenario_id = request.form['scenario_id']
+    #         model_id = get_scenario_model_id(scenario_id).data['model_id']
+    #         model = models.get_model(model_id).data['model']
+    #         result = model.delete()
+    #         flash(result.message)
+    #         return redirect(url_for('scenarios'))

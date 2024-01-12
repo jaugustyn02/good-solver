@@ -1,5 +1,6 @@
 from helpers.database import get_mysql_connection as get_db
 from helpers.result import OperationResult as Result
+from models.data_matrices import delete_matrix
 
 
 class ScenarioData:
@@ -18,6 +19,23 @@ def create_scenario_data(scenario_id: int) -> Result:
     cursor.close()
     db.close()
     return Result(True, "Scenario data created successfully", {"data_id": data_id})
+
+
+def delete_scenario_data(data_id: int) -> Result:
+    # delete all matrix elements
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM Data_Matrices WHERE data_id = '%s'" % data_id)
+    for matrix_id, data_id, expert_id, criterion_id, size in cursor:
+        delete_matrix(matrix_id)
+    cursor.close()
+    # delete scenario data
+    cursor = db.cursor()
+    cursor.execute('DELETE FROM Scenario_Data WHERE data_id = %s', (data_id,))
+    db.commit()
+    cursor.close()
+    db.close()
+    return Result(True, "Scenario data deleted successfully")
     
     
 def get_scenario_data(scenario_id: int) -> Result:
