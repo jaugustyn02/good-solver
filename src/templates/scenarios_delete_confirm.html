@@ -1,0 +1,15 @@
+{% extends 'components/base.html' %}
+{% block content %}
+<div class="container">
+    {% include 'components/result.html' %}
+    <h1><a href="{{ url_for('scenarios_view', scenario_id=scenario_id) }}">Scenario Panel</a></h1>
+    <h2>Are you sure you want to delete permanently this scenario?</h2>
+    <div class="altcontainer">
+        <form style="margin: 0" action="{{ url_for('scenarios_delete_confirm', scenario_id=scenario_id) }}" method="post">
+            <input id="delete-button" type="submit" value="Delete">
+        </form>
+        <button onclick="window.location.href='{{ url_for('scenarios_view', scenario_id=scenario_id) }}'">Cancel</button>
+    </div>
+</div>
+{% endblock %}
+```

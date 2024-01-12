@@ -1,6 +1,7 @@
 from helpers.database import get_mysql_connection as get_db
 from helpers.result import OperationResult as Result
 import models.scenario_data as scenario_data
+import models.models as models
 
 
 class Scenario:
@@ -36,6 +37,37 @@ def create_scenario(scenario: Scenario) -> Result:
 #     return Result(True, "Scenario data created successfully", {"data_id": data_id})
 
 
+#### DELETE ####
+
+
+def delete_scenario(scenario_id: int) -> Result:
+    # delete scenario data
+    result = get_scenario_data_id(scenario_id)
+    if result.success:
+        scenario_data_id = result.data['data_id']
+        scenario_data.delete_scenario_data(scenario_data_id)
+    # # TODO: delete Scenario_Weights
+    
+    result_model_id = get_scenario_model_id(scenario_id)
+    
+    # delete scenario
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('DELETE FROM Decision_Scenarios WHERE scenario_id = %s', (scenario_id,))
+    db.commit()
+    cursor.close()
+    db.close()
+
+    # delete model and all its data
+    if result_model_id.success:
+        model_id = result_model_id.data['model_id']
+        models.delete_model_data(model_id)
+        models.delete_model(model_id)
+    else:
+        return Result(False, "Model not found!")
+    return Result(True, "Scenario deleted successfully")
+    
+    
 #### GETTERS ####
 
 def get_scenario(scenario_id: int) -> Result:
@@ -108,7 +140,7 @@ def get_scenario_model_id(scenario_id: int) -> Result:
     db = get_db()
     cursor = db.cursor()
     cursor.execute("SELECT * FROM Decision_Scenarios WHERE scenario_id like '%s'" % scenario_id)
-    for _scenario_id, model_id, in_progress in cursor:
+    for id, model_id, in_progress in cursor:
         cursor.close()
         db.close()
         return Result(True, "Scenario found", {'model_id': model_id})

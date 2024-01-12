@@ -42,7 +42,7 @@
         <input type="hidden" name="scenario_id" value="{{scenario_id}}">
     </form>
     {% endif %}
-    <form action="{{ url_for('scenarios_delete', scenario_id=scenario_id) }}" method="post">
+    <form action="{{ url_for('scenarios_delete_confirm', scenario_id=scenario_id) }}" method="get">
         <input id="delete-button" type="submit" value="Delete Scenario">
         <input type="hidden" name="scenario_id" value="{{scenario_id}}">
     </form>

@@ -47,7 +47,7 @@ class Model:
         return finalize_model(self.id)
 
     def delete(self) -> Result:
-        return delete_model(self.id)
+        return delete_model_data(self.id)
         
         
 def add_model(model: Model) -> Result:
@@ -74,25 +74,50 @@ def add_model(model: Model) -> Result:
     return Result(True, "Model created successfully", {"model_id": model_id, "scenario_id": scenario_id})
 
 
-def delete_model(model_id: int) -> Result:
-    scenario_id = get_scenario_id(model_id)
-    data_id = get_scenario_data_id(scenario_id)
+def delete_model_data(model_id: int) -> Result:
     db = get_db()
     cursor = db.cursor()
-    cursor.execute("DELETE FROM Model_Scales WHERE model_id like '%s'" % model_id)
-    cursor.execute("DELETE FROM Model_Alternatives WHERE model_id like '%s'" % model_id)
-    cursor.execute("DELETE FROM Model_Criterias WHERE model_id like '%s'" % model_id)
-    cursor.execute("DELETE FROM Model_Experts WHERE ranking_id like '%s'" % model_id)
-    cursor.execute("DELETE FROM Data_Matrices WHERE data_id like '%s'" % data_id)
-    cursor.execute("DELETE FROM Scenario_Data WHERE scenario_id like '%s'" % scenario_id)
-    cursor.execute("DELETE FROM Decision_Scenarios WHERE scenario_id like '%s'" % scenario_id)
-    cursor.execute("DELETE FROM Decision_Scenarios WHERE model_id like '%s'" % model_id)
-    cursor.execute("DELETE FROM Models WHERE model_id like '%s'" % model_id)
+    
+    cursor.execute('SELECT alternative_id FROM Model_Alternatives WHERE model_id = %s', (model_id,))
+    for alternative_id in cursor:
+        delete_alternative(alternative_id[0])
+    
+    cursor.execute('SELECT criterion_id FROM Model_Criterias WHERE model_id = %s', (model_id,))
+    for criterion_id in cursor:
+        delete_criterion(criterion_id[0])
+    
+    cursor.execute('SELECT scale_id FROM Model_Scales WHERE model_id = %s', (model_id,))
+    for scale_id in cursor:
+        delete_scale(scale_id[0])
     db.commit()
     cursor.close()
     db.close()
-    return Result(True, "Model deleted successfully")
+    
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('DELETE FROM Model_Alternatives WHERE model_id = %s', (model_id,))
+    cursor.execute('DELETE FROM Model_Criterias WHERE model_id = %s', (model_id,))
+    cursor.execute('DELETE FROM Model_Scales WHERE model_id = %s', (model_id,))
+    cursor.execute('DELETE FROM Model_Experts WHERE ranking_id = %s', (model_id,))
+    db.commit()
+    cursor.close()
+    
+    return Result(True, "Model data deleted successfully")
 
+
+def delete_model(model_id: int) -> Result:
+    # scenario = get_scenario_id(model_id)
+    # if scenario.success:
+    #     return Result(False, "Model is used in a scenario")
+    
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('DELETE FROM Models WHERE model_id = %s', (model_id,))
+    db.commit()
+    cursor.close()
+    db.close()
+    
+    return Result(True, "Model deleted successfully")
 
 def finalize_model(model_id: int) -> Result:
     scenario = get_scenario_id(model_id)

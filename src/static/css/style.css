@@ -80,9 +80,9 @@ input[type="submit"] {
     border: none;
 }
 
-button:hover {
-    background-color: #2f7c4f; /* this does not work because of the !important in the bootstrap css */
-}
+/* button:hover {
+    background-color: #5acc5e;
+} */
 
 button {
     padding: 10px;
@@ -104,6 +104,48 @@ select {
 
 input[type="checkbox"] {
     margin-bottom: 5px;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 50%;
+  height: 15px;
+  background: #424242;
+  outline: none;
+  opacity: 0.85;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+input[type="range"]:hover {
+    opacity: 1;
+}
+
+/* Thumb: Firefox */
+input[type="range"]::-moz-range-thumb {
+    height: 27px;
+    width: 27px;
+    background-color: #fcae1e;
+    border-radius: 50%;
+}
+
+/* Thumb: webkit */
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    /* creating a custom design */
+    height: 27px;
+    width: 27px;
+    background-color: #fcae1e;
+    border-radius: 50%;
+    /*border: 4px solid rgb(63, 45, 128);*/
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  background: #04AA6D;
+  cursor: pointer;
 }
 
 .container {
