@@ -1,9 +1,10 @@
 from helpers.database import get_mysql_connection as get_db
 from helpers.result import OperationResult as Result
-# from models.scenario_data import get_scenario_data
 from models.matrix_element import get_matrix_element, MatrixElement, create_matrix_element
 from models.criterions import is_parent_criterion
 from collections import defaultdict
+import numpy as np
+
 
 class DataMatrix:
     def __init__(self, data_id, expert_id, criterion_id, size, id=None):
@@ -51,6 +52,26 @@ def get_data_matrix(data_id: int, expert_id: int, criterion_id: int) -> Result:
         data = DataMatrix(data_id, expert_id, criterion_id, size,id)
         return Result(True, "Data matrix found", {'data': data})
     return Result(False, 'Data matrix is not present!')
+
+
+def get_all_data_matrix_elements(matrix_id: int, size: int) -> Result:
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM Data_Matrix_Element WHERE matrix_id = '%s'" % matrix_id)
+    matrix_elements = []
+    for id, matrix_id, row, column, value in cursor:
+        element = MatrixElement(matrix_id, row, column, value, id)
+        matrix_elements.append(element)
+    cursor.close()
+    db.close()
+    if not matrix_elements:
+        return Result(False, 'Data matrix is not complete!')
+    matrix_elements = sorted(matrix_elements, key=lambda x: (x.row, x.column))
+    data = [[0 for _ in range(size)] for _ in range(size)]
+    for i in range(size):
+        for j in range(size):
+            data[i][j] = matrix_elements[i*size + j].value
+    return Result(True, "Data matrix found", {'data': np.array(data)})
 
 
 def find_empty_matrix_field(expert_id: int, scenario_id: int, criterias: list, alternatives: list) -> Result:
