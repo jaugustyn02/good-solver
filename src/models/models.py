@@ -77,28 +77,44 @@ def add_model(model: Model) -> Result:
 def delete_model_data(model_id: int) -> Result:
     db = get_db()
     cursor = db.cursor()
+    alternative_ids = []
+    criterion_ids = []
+    scale_ids = []
     
     cursor.execute('SELECT alternative_id FROM Model_Alternatives WHERE model_id = %s', (model_id,))
     for alternative_id in cursor:
-        delete_alternative(alternative_id[0])
+        alternative_ids.append(alternative_id[0])
+        # delete_alternative(alternative_id[0])
     
-    cursor.execute('SELECT criterion_id FROM Model_Criterias WHERE model_id = %s', (model_id,))
+    cursor.execute('SELECT criterion_id FROM Model_Criterias WHERE model_id = %s ORDER BY criterion_id DESC', (model_id,))
     for criterion_id in cursor:
-        delete_criterion(criterion_id[0])
+        criterion_ids.append(criterion_id[0])
+        # delete_criterion(criterion_id[0])
     
     cursor.execute('SELECT scale_id FROM Model_Scales WHERE model_id = %s', (model_id,))
     for scale_id in cursor:
-        delete_scale(scale_id[0])
-    db.commit()
-    cursor.close()
-    db.close()
-    
-    db = get_db()
-    cursor = db.cursor()
+        scale_ids.append(scale_id[0])
+        # delete_scale(scale_id[0])
+        
     cursor.execute('DELETE FROM Model_Alternatives WHERE model_id = %s', (model_id,))
     cursor.execute('DELETE FROM Model_Criterias WHERE model_id = %s', (model_id,))
     cursor.execute('DELETE FROM Model_Scales WHERE model_id = %s', (model_id,))
-    cursor.execute('DELETE FROM Model_Experts WHERE ranking_id = %s', (model_id,))
+    cursor.execute('DELETE FROM Model_Experts WHERE ranking_id = %s', (model_id,))    
+    
+    # db.commit()
+    # cursor.close()
+    # db.close()
+    
+    # db = get_db()
+    # cursor = db.cursor()
+    
+    for alternative_id in alternative_ids:
+        cursor.execute('DELETE FROM Alternatives WHERE alternative_id = %s', (alternative_id,))
+    for criterion_id in criterion_ids:
+        cursor.execute('DELETE FROM Criterias WHERE criterion_id = %s', (criterion_id,))
+    for scale_id in scale_ids:
+        cursor.execute('DELETE FROM Scales WHERE scale_id = %s', (scale_id,))
+        
     db.commit()
     cursor.close()
     

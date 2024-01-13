@@ -119,7 +119,7 @@ def delete_matrix(matrix_id: int) -> Result:
     cursor.close()
     # Delete matrix
     cursor = db.cursor()
-    cursor.execute('DELETE FROM Data_Matrices WHERE id = %s', (matrix_id,))
+    cursor.execute('DELETE FROM Data_Matrices WHERE matrix_id = %s', (matrix_id,))
     db.commit()
     cursor.close()
     db.close()
