@@ -3,9 +3,9 @@ from flask import render_template, request, flash, redirect, url_for
 from helpers.result import OperationResult as Result
 from helpers.encoding import encode_int
 from models.alternatives import Alternative, get_alternative
-from models.data_matrices import find_empty_matrix_field, get_data_matrix
+from models.data_matrices import find_empty_matrix_field, get_data_matrix, complete_all_other_fields
 from models.scenario_data import get_scenario_data
-from models.criterions import Criterion
+from models.criterions import Criterion, get_criteria
 from models.scales import Scale
 from models.matrix_element import MatrixElement, create_matrix_element
 from datetime import datetime
@@ -60,12 +60,19 @@ def configure_scenarios_routes(app):
             res = find_empty_matrix_field(expert_id, scenario_id, model.get_criterias(), model.get_alternatives())
             if res.success:
                 alt1_id, alt2_id, criterion = res.data['data']
-                alt1 = get_alternative(alt1_id).data['alternative']
-                alt2 = get_alternative(alt2_id).data['alternative']
+                alt1 = get_alternative(alt1_id)
+                alt2 = get_alternative(alt2_id)
+                if alt1.success:
+                    alt1 = alt1.data['alternative']
+                    alt2 = alt2.data['alternative']
+                else:
+                    alt1 = get_criteria(alt1_id).data['criterion']
+                    alt2 = get_criteria(alt2_id).data['criterion']
                 return render_template('scenarios_complete.html', scenario_id=scenario_id, expert_id=expert_id,
                                        model_id=model_id, scales=scales, expert_name=expert_name, model=model,
                                        alt1=alt1, alt2=alt2, criterion=criterion)
             else:
+                complete_all_other_fields(expert_id, scenario_id, model.get_criterias(), model.get_alternatives())
                 flash("Thank you for filling out the survey")
                 return redirect(url_for('scenarios'))
         else:
@@ -78,8 +85,14 @@ def configure_scenarios_routes(app):
             res = find_empty_matrix_field(expert_id, scenario_id, model.get_criterias(), model.get_alternatives())
             if res.success:
                 alt1_id, alt2_id, criterion = res.data['data']
-                alt1 = get_alternative(alt1_id).data['alternative']
-                alt2 = get_alternative(alt2_id).data['alternative']
+                alt1 = get_alternative(alt1_id)
+                alt2 = get_alternative(alt2_id)
+                if alt1.success:
+                    alt1 = alt1.data['alternative']
+                    alt2 = alt2.data['alternative']
+                else:
+                    alt1 = get_criteria(alt1_id).data['criterion']
+                    alt2 = get_criteria(alt2_id).data['criterion']
                 return render_template('scenarios_complete.html', scenario_id=scenario_id, expert_id=expert_id,
                                        model_id=model_id, scales=scales, expert_name=expert_name, model=model,
                                        alt1=alt1, alt2=alt2, criterion=criterion)
