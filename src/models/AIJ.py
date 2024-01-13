@@ -16,6 +16,6 @@ def AIJ(model_id: int) -> list:
             data_matrix = get_data_matrix(data_id, expert_id, criterion.id).data['data']
             matrix_ = get_all_data_matrix_elements(data_matrix.id, data_matrix.size)
             if matrix_.success:
-                matrix.append(matrix_)
+                matrix.append(matrix_.data['data'])
         matrices.append({'criterion_id': criterion.id, 'data': aggregate_matrices(matrix, "gmm", False)})
     return matrices

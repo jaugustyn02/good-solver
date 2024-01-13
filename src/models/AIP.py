@@ -18,7 +18,7 @@ def AIP(model_id: int) -> np.ndarray:
             data_matrix = get_data_matrix(data_id, expert_id, criterion.id).data['data']
             matrix_ = get_all_data_matrix_elements(data_matrix.id, data_matrix.size)
             if matrix_.success:
-                matrix.append({'criterion_id': criterion.id, 'data': matrix_})
+                matrix.append({'criterion_id': criterion.id, 'data': matrix_.data['data']})
         results.append(AHP(matrix))
 
     return aggregate_vectors(results, "gmm", False)
