@@ -9,7 +9,7 @@ class Criterion:
         self.name = name
         self.description = description
 
-def create_criterion(criterion: Criterion) -> dict:
+def create_criterion(criterion: Criterion) -> Result:
     db = get_db()
     cursor = db.cursor()
     cursor.execute('INSERT INTO Criterias (parent_criterion, name, description) VALUES (%s, %s, %s)', (criterion.parent_id, criterion.name, criterion.description))
@@ -18,6 +18,16 @@ def create_criterion(criterion: Criterion) -> dict:
     cursor.close()
     db.close()
     return Result(True, "Alternative created successfully", {"criterion_id": criterion_id})
+
+
+def is_parent_criterion(criterion_id: int) -> Result:
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT * FROM Criterias WHERE parent_criterion = %s', (criterion_id,))
+    if cursor.fetchone() is not None:
+        return Result(True, "This is not a parent criterion")
+    return Result(False, "This is not a parent criterion")
+
 
 def delete_criterion(criterion_id: int) -> Result:
     db = get_db()
@@ -32,6 +42,19 @@ def delete_criterion(criterion_id: int) -> Result:
     cursor.close()
     db.close()
     return Result(True, "Alternative deleted successfully")
+
+
+def get_criteria(criterion_id: int) -> Result:
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM Criterias WHERE criterion_id = %s", (criterion_id,))
+    for id, parent_criterion, name, description in cursor:
+        criterion = Criterion(parent_criterion, name, description, id)
+        cursor.close()
+        db.close()
+        return Result(True, 'Criteria found', {'criterion': criterion})
+    return Result(False, 'Criteria is not present!')
+
 
 # def get_criteria_id(name_):
 #     db = get_db()
