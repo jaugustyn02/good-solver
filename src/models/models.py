@@ -24,6 +24,9 @@ class Model:
     
     def get_criterias(self):
         return get_model_criterias(self.id).data['criterias']
+
+    def get_experts(self):
+        return get_model_experts_id(self.id)
     
     def add_alternative(self, alternative: Alternative):
         return add_model_alternative(self.id, alternative)
