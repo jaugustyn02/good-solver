@@ -9,6 +9,9 @@
         <li> {{name}} - {{value}} </li>
         {% endfor %}
     </ol>
+    <a href="{{ url_for('export_json') }}" download="data.json">
+        <button>Export JSON</button>
+    </a>
     </div>
 {% endblock %}
 ```

@@ -1,4 +1,4 @@
-from flask import render_template, request
+from flask import render_template, request, jsonify
 from models.scenarios import get_scenarios_completed, get_scenario_model_id, get_scenario_id
 from models.models import get_model, get_model_id
 from models.scenario_weights import get_final_scenario_weights
@@ -27,3 +27,8 @@ def configure_rankings_routes(app):
         ranking_ = get_final_scenario_weights(scenario_id).data['values']
         ranking = sorted(ranking_, key=lambda x: -x[1])
         return render_template('show_rankings.html', ranking_name=ranking_name, ranking=ranking)
+
+    @app.route('/export_json', methods=['GET', 'POST'])
+    def export_json():
+        data = [{'id': 1, 'username': 'Alice'}, {'id': 2, 'username': 'Bob'}]
+        return jsonify(data=data, status=200, mimetype='application/json')
