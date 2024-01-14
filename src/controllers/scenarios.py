@@ -272,7 +272,7 @@ def configure_scenarios_routes(app):
             flash(result.message)
             return redirect(url_for('scenarios_view', scenario_id=scenario_id))
 
-    @app.route('/rankings/show', methods=['POST'])
+    @app.route('/ranking/show', methods=['POST'])
     def ranking_show():
         if request.method == 'POST':
             ranking_name = request.form['name']
