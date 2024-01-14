@@ -1,6 +1,7 @@
 from helpers.database import get_mysql_connection as get_db
 from helpers.result import OperationResult as Result
 import models.scenario_data as scenario_data
+import models.scenario_weights as scenario_weights
 import models.models as models
 
 
@@ -23,6 +24,7 @@ def create_scenario(scenario: Scenario) -> Result:
     
     data_result = scenario_data.create_scenario_data(scenario_id)
     data_id = data_result.data['data_id']
+    
     return Result(True, "Scenario created successfully", {"scenario_id": scenario_id, "data_id": data_id})
 
 

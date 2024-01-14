@@ -6,7 +6,12 @@ from models.criterions import Criterion, create_criterion, delete_criterion
 from models.scales import Scale, create_scale, delete_scale, default_scales
 from models.data_matrices import create_expert_matrices, find_empty_matrix_field
 from models.scenario_data import set_scenario_data_in_progress
+from models.weights_vector_element import create_weights_vector_element
+import models.scenario_weights as scenario_weights
 from datetime import datetime
+from models.AIP import AIP
+from models.AIJ import AIJ
+import numpy as np
 
 
 class Model:
@@ -138,20 +143,40 @@ def delete_model(model_id: int) -> Result:
     
     return Result(True, "Model deleted successfully")
 
+
 def finalize_model(model_id: int) -> Result:
     scenario = get_scenario_id(model_id)
     if not scenario.success:
         return Result(False, "Scenario not found")
     scenario_id = scenario.data['scenario_id']
+    
     result = set_scenario_in_progress(scenario_id, False)
     if not result.success:
         return Result(False, "Scenario couldn't be finalized")
+    
     db = get_db()
     cursor = db.cursor()
     cursor.execute('UPDATE Models SET end_date = %s WHERE model_id = %s', (datetime.now(), model_id))
     db.commit()
     cursor.close()
     db.close()
+    
+    model = get_model(model_id).data['model']
+    agg_method = get_model_aggregation_method(model_id).data['agg_method']
+    if agg_method == 'aip':
+        ranking: np.ndarray = AIP(model)
+    elif agg_method == 'aij':
+        ranking: np.ndarray = AIJ(model)
+        
+    
+    # Add result to scenario_weights
+    weights = scenario_weights.ScenarioWeights(scenario_id, 0, len(ranking), False)
+    weights_id = scenario_weights.create_scenario_weights(weights).data['weights_id']
+    criterais = get_model_criterias(model_id).data['criterias']
+    for i, criterion in enumerate(criterais):
+        create_weights_vector_element(weights_id, criterion.id, float(ranking[i]))
+    
+    
     return Result(True, "Model finalized successfully")
 
 
@@ -370,3 +395,14 @@ def surveys_completed_count(model_id: int) -> int:
         if not res.success:
             count += 1
     return count
+
+
+def get_model_aggregation_method(model_id: int) -> Result:
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT aggregation_method FROM Models WHERE model_id = %s', (model_id,))
+    for aggregation_method in cursor:
+        cursor.close()
+        db.close()
+        return Result(True, "Aggregation method found", {"agg_method": aggregation_method[0]})
+    return Result(False, "Aggregation method not found")

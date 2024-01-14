@@ -184,3 +184,7 @@ input[type="range"]::-moz-range-thumb {
 #description{
     color: #84fd95;
 }
+
+#name{
+    color: #ffa673;
+}

@@ -16,10 +16,11 @@ def create_scenario_weights(scenario_weights: ScenarioWeights) -> Result:
     cursor = db.cursor()
     cursor.execute('INSERT INTO Scenario_Weights (scenario_id, criterion_id, size, in_progress) VALUES (%s, %s, %s, %s)',
                    (scenario_weights.scenario_id, scenario_weights.criterion_id, scenario_weights.size, scenario_weights.in_progress))
+    weights_id = cursor.lastrowid
     db.commit()
     cursor.close()
     db.close()
-    return Result(True, "Vector created successfully")
+    return Result(True, "Vector created successfully", {"weights_id": weights_id})
 
 
 def get_scenario_weights(scenario_id: int) -> list:
