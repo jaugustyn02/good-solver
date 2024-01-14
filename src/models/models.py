@@ -92,29 +92,19 @@ def delete_model_data(model_id: int) -> Result:
     cursor.execute('SELECT alternative_id FROM Model_Alternatives WHERE model_id = %s', (model_id,))
     for alternative_id in cursor:
         alternative_ids.append(alternative_id[0])
-        # delete_alternative(alternative_id[0])
     
     cursor.execute('SELECT criterion_id FROM Model_Criterias WHERE model_id = %s ORDER BY criterion_id DESC', (model_id,))
     for criterion_id in cursor:
         criterion_ids.append(criterion_id[0])
-        # delete_criterion(criterion_id[0])
     
     cursor.execute('SELECT scale_id FROM Model_Scales WHERE model_id = %s', (model_id,))
     for scale_id in cursor:
         scale_ids.append(scale_id[0])
-        # delete_scale(scale_id[0])
         
     cursor.execute('DELETE FROM Model_Alternatives WHERE model_id = %s', (model_id,))
     cursor.execute('DELETE FROM Model_Criterias WHERE model_id = %s', (model_id,))
     cursor.execute('DELETE FROM Model_Scales WHERE model_id = %s', (model_id,))
-    cursor.execute('DELETE FROM Model_Experts WHERE ranking_id = %s', (model_id,))    
-    
-    # db.commit()
-    # cursor.close()
-    # db.close()
-    
-    # db = get_db()
-    # cursor = db.cursor()
+    cursor.execute('DELETE FROM Model_Experts WHERE ranking_id = %s', (model_id,))
     
     for alternative_id in alternative_ids:
         cursor.execute('DELETE FROM Alternatives WHERE alternative_id = %s', (alternative_id,))
@@ -130,10 +120,6 @@ def delete_model_data(model_id: int) -> Result:
 
 
 def delete_model(model_id: int) -> Result:
-    # scenario = get_scenario_id(model_id)
-    # if scenario.success:
-    #     return Result(False, "Model is used in a scenario")
-    
     db = get_db()
     cursor = db.cursor()
     cursor.execute('DELETE FROM Models WHERE model_id = %s', (model_id,))

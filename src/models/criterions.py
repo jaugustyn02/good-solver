@@ -57,18 +57,6 @@ def get_criteria(criterion_id: int) -> Result:
     return Result(False, 'Criteria is not present!')
 
 
-# def get_criterion_children(criterion_id: int) -> Result:
-#     db = get_db()
-#     cursor = db.cursor()
-#     cursor.execute("SELECT * FROM Criterias WHERE parent_criterion = %s", (criterion_id,))
-#     criteria = []
-#     for id, parent_criterion, name, description in cursor:
-#         criteria.append(Criterion(parent_criterion, name, description, id))
-#     cursor.close()
-#     db.close()
-#     return Result(True, 'Criteria found', {'criteria': criteria})
-
-
 def get_criteria_children(model_id: int) -> Result:
     db = get_db()
     cursor = db.cursor()

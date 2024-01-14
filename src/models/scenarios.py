@@ -1,7 +1,6 @@
 from helpers.database import get_mysql_connection as get_db
 from helpers.result import OperationResult as Result
 import models.scenario_data as scenario_data
-import models.scenario_weights as scenario_weights
 import models.models as models
 
 
@@ -26,18 +25,6 @@ def create_scenario(scenario: Scenario) -> Result:
     data_id = data_result.data['data_id']
     
     return Result(True, "Scenario created successfully", {"scenario_id": scenario_id, "data_id": data_id})
-
-
-# def create_scenario_data(scenario_id: int) -> Result:
-#     db = get_db()
-#     cursor = db.cursor()
-#     cursor.execute('INSERT INTO Scenario_Data (scenario_id, in_progress) VALUES (%s, %s)', (scenario_id, True))
-#     data_id = cursor.lastrowid
-#     db.commit()
-#     cursor.close()
-#     cursor = db.cursor()
-#     return Result(True, "Scenario data created successfully", {"data_id": data_id})
-
 
 #### DELETE ####
 
@@ -159,12 +146,3 @@ def set_scenario_in_progress(scenario_id: int, in_progress: bool) -> Result:
     cursor.close()
     db.close()
     return Result(True, "Scenario in_progress status updated successfully")
-
-# def set_scenario_data_in_progress(scenario_id: int, in_progress: bool) -> Result:
-#     db = get_db()
-#     cursor = db.cursor()
-#     cursor.execute('UPDATE Scenario_Data SET in_progress = %s WHERE scenario_id = %s', (in_progress, scenario_id))
-#     db.commit()
-#     cursor.close()
-#     db.close()
-#     return Result(True, "Scenario data in_progress status updated successfully")
