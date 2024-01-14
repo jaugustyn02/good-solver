@@ -2,6 +2,7 @@ from helpers.database import get_mysql_connection as get_db
 from helpers.result import OperationResult as Result
 import models.scenario_data as scenario_data
 import models.models as models
+import models.scenario_weights as scenario_weights
 
 
 class Scenario:
@@ -35,12 +36,17 @@ def delete_scenario(scenario_id: int) -> Result:
     if result.success:
         scenario_data_id = result.data['data_id']
         scenario_data.delete_scenario_data(scenario_data_id)
-    # # TODO: delete Scenario_Weights
     
     result_model_id = get_scenario_model_id(scenario_id)
     
-    # delete scenario
+    # delete scenario and scenario weights
+    scenario_weights.delete_scenario_weights_with_elements(scenario_id)
     db = get_db()
+    cursor = db.cursor()
+    cursor.execute('DELETE FROM Scenario_Weights WHERE scenario_id = %s', (scenario_id,))
+    db.commit()
+    cursor.close()
+
     cursor = db.cursor()
     cursor.execute('DELETE FROM Decision_Scenarios WHERE scenario_id = %s', (scenario_id,))
     db.commit()

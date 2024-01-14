@@ -42,3 +42,12 @@ def get_vector_elements_values(weights_id: int):
         if alternative.success:
             values.append([alternative.data['alternative'].name, vector_element.value])
     return values
+
+
+def delete_element(weights_id: int):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('DELETE FROM Weights_Vector_Element WHERE weights_id = %s', (weights_id,))
+    db.commit()
+    cursor.close()
+    db.close()

@@ -1,6 +1,6 @@
 from helpers.database import get_mysql_connection as get_db
 from helpers.result import OperationResult as Result
-from models.weights_vector_element import get_vector_elements_values
+from models.weights_vector_element import get_vector_elements_values, delete_element
 
 
 class ScenarioWeights:
@@ -47,3 +47,9 @@ def get_final_scenario_weights(scenario_id: int) -> Result:
     cursor.close()
     db.close()
     return Result(False, "Weight id not found")
+
+
+def delete_scenario_weights_with_elements(scenario_id: int):
+    scenario_weights = get_scenario_weights(scenario_id)
+    for weight in scenario_weights:
+        delete_element(weight.id)
