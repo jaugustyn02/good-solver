@@ -25,6 +25,7 @@ def get_matrix_element(matrix_id: int, row: int, column: int) -> Result:
     cursor = db.cursor()
     cursor.execute("SELECT * FROM Data_Matrix_Element WHERE matrix_id = %s AND row = %s AND `column` = %s", (matrix_id, row, column))
     for id, matrix_id, row, column, value in cursor:
+        cursor.fetchall()
         cursor.close()
         db.close()
         data = MatrixElement(matrix_id, row, column, value,id)

@@ -24,13 +24,21 @@ def matrix_to_vector(matrix: np.ndarray, method: str, rowWise: bool = True, norm
     return vector
 
 
+def vectors_to_matrix(vectors: list, rowWise: bool = True) -> np.ndarray:
+    if rowWise:
+        return np.array(vectors)
+    else:
+        return np.array(vectors).transpose()
+    
+
+
 def matrix_vector_mul(matrix: np.ndarray, vector: np.ndarray) -> np.ndarray:
     if matrix.shape[1] != vector.shape[0]:
         raise ValueError("Matrix and vector have incompatible dimensions: {} and {}.".format(matrix.shape, vector.shape))
     return np.dot(matrix, vector)
 
 
-def aggregate_matrices(matrices: list[np.ndarray], method: str, normalize: bool = False) -> np.ndarray:
+def aggregate_matrices(matrices: list, method: str, normalize: bool = False) -> np.ndarray:
     # aggregate list of matrices into one matrix using the specified method (i,j - matrix index, k - matrix number)
     # aggregated matrix: a_ij = method([m_ijk]) for all k for all i,j
     
@@ -45,7 +53,7 @@ def aggregate_matrices(matrices: list[np.ndarray], method: str, normalize: bool 
     return aggregated_matrix
 
 
-def aggregate_vectors(vectors: list[np.ndarray], method: str, normalize: bool = False) -> np.ndarray:
+def aggregate_vectors(vectors: list, method: str, normalize: bool = False) -> np.ndarray:
     # aggregate list of vectors into one vector using the specified method (i - vector index, k - vector number)
     # aggregated vector: a_i = method([v_ik]) for all k for all i
     
@@ -57,7 +65,6 @@ def aggregate_vectors(vectors: list[np.ndarray], method: str, normalize: bool = 
     if normalize:
         aggregated_vector = aggregated_vector / np.sum(aggregated_vector)
     return aggregated_vector
-
 
 
 if __name__ == "__main__":
@@ -73,3 +80,7 @@ if __name__ == "__main__":
     print(aggregate_matrices([matrix, matrix2, matrix], "gmm", normalize=False))
     print()
     print(aggregate_vectors([vector, vector, vector], "gmm", normalize=False))
+    
+    # vectors to matrix
+    print()
+    print(vectors_to_matrix([vector, vector, vector], rowWise=False))
