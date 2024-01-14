@@ -1,8 +1,8 @@
 from helpers.database import get_mysql_connection as get_db
 from helpers.result import OperationResult as Result
 import models.scenario_data as scenario_data
-import models.scenario_weights as scenario_weights
 import models.models as models
+import models.scenario_weights as scenario_weights
 
 
 class Scenario:
@@ -27,18 +27,6 @@ def create_scenario(scenario: Scenario) -> Result:
     
     return Result(True, "Scenario created successfully", {"scenario_id": scenario_id, "data_id": data_id})
 
-
-# def create_scenario_data(scenario_id: int) -> Result:
-#     db = get_db()
-#     cursor = db.cursor()
-#     cursor.execute('INSERT INTO Scenario_Data (scenario_id, in_progress) VALUES (%s, %s)', (scenario_id, True))
-#     data_id = cursor.lastrowid
-#     db.commit()
-#     cursor.close()
-#     cursor = db.cursor()
-#     return Result(True, "Scenario data created successfully", {"data_id": data_id})
-
-
 #### DELETE ####
 
 
@@ -48,12 +36,17 @@ def delete_scenario(scenario_id: int) -> Result:
     if result.success:
         scenario_data_id = result.data['data_id']
         scenario_data.delete_scenario_data(scenario_data_id)
-    # # TODO: delete Scenario_Weights
     
     result_model_id = get_scenario_model_id(scenario_id)
     
-    # delete scenario
+    # delete scenario and scenario weights
+    scenario_weights.delete_scenario_weights_with_elements(scenario_id)
     db = get_db()
+    cursor = db.cursor()
+    cursor.execute('DELETE FROM Scenario_Weights WHERE scenario_id = %s', (scenario_id,))
+    db.commit()
+    cursor.close()
+
     cursor = db.cursor()
     cursor.execute('DELETE FROM Decision_Scenarios WHERE scenario_id = %s', (scenario_id,))
     db.commit()
@@ -159,12 +152,3 @@ def set_scenario_in_progress(scenario_id: int, in_progress: bool) -> Result:
     cursor.close()
     db.close()
     return Result(True, "Scenario in_progress status updated successfully")
-
-# def set_scenario_data_in_progress(scenario_id: int, in_progress: bool) -> Result:
-#     db = get_db()
-#     cursor = db.cursor()
-#     cursor.execute('UPDATE Scenario_Data SET in_progress = %s WHERE scenario_id = %s', (in_progress, scenario_id))
-#     db.commit()
-#     cursor.close()
-#     db.close()
-#     return Result(True, "Scenario data in_progress status updated successfully")

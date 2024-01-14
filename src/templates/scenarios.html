@@ -11,7 +11,7 @@
     <h1>Completed Scenarios:</h1>
     <ul>
         {% for scenario in scenarios_completed %}
-            <li><a href="{{ url_for('scenarios_view', scenario_id=scenario.id) }}">{{ scenario.id }}) - {{ scenarios_names[scenario.id]}}</a></li>
+            <li>{{ scenario.id }}: {{ scenarios_names[scenario.id]}} - <a href="{{ url_for('scenarios_view', scenario_id=scenario.id) }}">enter panel</a></li>
         {% endfor %}
     </ul>
 </div>

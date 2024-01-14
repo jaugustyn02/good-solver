@@ -1,5 +1,4 @@
 from flask import render_template, request
-from helpers.database import get_mysql_connection as get_db
 from models.scenarios import get_scenarios_completed, get_scenario_model_id, get_scenario_id
 from models.models import get_model, get_model_id
 from models.scenario_weights import get_final_scenario_weights

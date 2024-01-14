@@ -31,7 +31,6 @@ def vectors_to_matrix(vectors: list, rowWise: bool = True) -> np.ndarray:
         return np.array(vectors).transpose()
     
 
-
 def matrix_vector_mul(matrix: np.ndarray, vector: np.ndarray) -> np.ndarray:
     if matrix.shape[1] != vector.shape[0]:
         raise ValueError("Matrix and vector have incompatible dimensions: {} and {}.".format(matrix.shape, vector.shape))

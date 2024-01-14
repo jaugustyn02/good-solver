@@ -1,6 +1,4 @@
 from flask import render_template, request, flash, redirect, url_for
-# from models.scenarios import get_scenarios_completed, get_scenarios_in_progress, get_scenario_model_id, get_scenario_id
-from helpers.result import OperationResult as Result
 from helpers.encoding import encode_int
 from models.alternatives import Alternative, get_alternative
 from models.data_matrices import find_empty_matrix_field, get_data_matrix, complete_all_other_fields
@@ -135,7 +133,9 @@ def configure_scenarios_routes(app):
             ranking_method = request.form['ranking_method']
             aggregation_method = request.form['aggregation_method']
             start_date = datetime.now()
-            end_date = datetime.max
+            end_date = request.form['end_date']
+            if end_date == "":
+                end_date = datetime.max
             completeness_required = request.form.get('completeness_required') is not None
             result = models.add_model(models.Model(name, ranking_method, aggregation_method, completeness_required, start_date, end_date))
             if result.success:
@@ -272,21 +272,24 @@ def configure_scenarios_routes(app):
             flash(result.message)
             return redirect(url_for('scenarios_view', scenario_id=scenario_id))
 
-    @app.route('/ranking/show', methods=['POST'])
+    @app.route('/ranking/show', methods=['GET', 'POST'])
     def ranking_show():
         if request.method == 'POST':
             ranking_name = request.form['name']
             scenario_id = request.form['scenario_id']
+            if scenario_id == "":
+                model_id = request.form['scenario_id']
+                scenario_id = Scenarios.get_scenario_id(model_id).data['scenario_id']
             ranking_ = get_final_scenario_weights(scenario_id).data['values']
             ranking = sorted(ranking_, key=lambda x: -x[1])
             return render_template('show_rankings.html', ranking_name=ranking_name, ranking=ranking)
-        
-    # @app.route('/scenarios/delete', methods=['POST'])
-    # def scenarios_delete():
-    #     if request.method == 'POST':
-    #         scenario_id = request.form['scenario_id']
-    #         model_id = get_scenario_model_id(scenario_id).data['model_id']
-    #         model = models.get_model(model_id).data['model']
-    #         result = model.delete()
-    #         flash(result.message)
-    #         return redirect(url_for('scenarios'))
+        if request.method == 'GET':
+            ranking_name = request.args.get('name')
+            scenario_id = ""
+            if scenario_id == "":
+                model_id = request.args.get('model_id')
+                scenario_id = Scenarios.get_scenario_id(model_id).data['scenario_id']
+            ranking_ = get_final_scenario_weights(scenario_id).data['values']
+            ranking = sorted(ranking_, key=lambda x: -x[1])
+            return render_template('show_rankings.html', ranking_name=ranking_name, ranking=ranking)
+

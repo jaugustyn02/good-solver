@@ -13,13 +13,13 @@
     <h2> Your list of ongoing surveys: </h2>
     <ul>
         {% for scenario in surveys_ongoing %}
-            <li>{{scenario.name}} - <a href="{{ url_for('scenarios_complete', model_id=scenario.id, expert_id=expert_id, expert_name=expert_name, scenario_id='', scales='') }}" >start or edit your answers</a></li>
+            <li>{{scenario.name}} - <a href="{{ url_for('scenarios_complete', model_id=scenario.id, expert_id=expert_id, expert_name=expert_name, scenario_id='', scales='') }}" >take a survey</a></li>
         {% endfor %}
     </ul>
     <h2> Your list of ended surveys: </h2>
     <ul>
         {% for scenario in surveys_ended %}
-        <li>{{scenario.name}} - <a href="/scenarios">see results</a></li>
+        <li>{{scenario.name}} - <a href="{{ url_for('ranking_show', model_id=scenario.id, name=scenario.name) }}">see results</a></li>
         {% endfor %}
     </ul>
     </div>
