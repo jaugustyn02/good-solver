@@ -172,9 +172,9 @@ def finalize_model(model_id: int) -> Result:
     # Add result to scenario_weights
     weights = scenario_weights.ScenarioWeights(scenario_id, 0, len(ranking), False)
     weights_id = scenario_weights.create_scenario_weights(weights).data['weights_id']
-    criterais = get_model_criterias(model_id).data['criterias']
-    for i, criterion in enumerate(criterais):
-        create_weights_vector_element(weights_id, criterion.id, float(ranking[i]))
+    alternatives = get_model_alternatives(model_id).data['alternatives']
+    for i, alternative in enumerate(alternatives):
+        create_weights_vector_element(weights_id, alternative.id, float(ranking[i]))
     
     
     return Result(True, "Model finalized successfully")

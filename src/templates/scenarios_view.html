@@ -4,7 +4,7 @@
     {% include 'components/result.html' %}
     <h1><a href="{{ url_for('scenarios_view', scenario_id=scenario_id) }}">Scenario Panel</a></h1>
     <h2>Details:</h2>
-    <p>Model Name: <span id='name'>{{ model.name }}</span></p>
+    <p>Model Name: <span id='orange'>{{ model.name }}</span></p>
     <p>Scenario ID: {{ scenario_id }}</p>
     <p>Start Date: {{ model.start_date }}</p>
     <p>Ranking method: {{ model.ranking_method|upper }}</p>
