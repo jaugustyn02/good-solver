@@ -1,5 +1,6 @@
 from helpers.database import get_mysql_connection as get_db
 from helpers.result import OperationResult as Result
+from models.weights_vector_element import get_vector_elements_values
 
 
 class ScenarioWeights:
@@ -35,14 +36,14 @@ def get_scenario_weights(scenario_id: int) -> list:
     return scenarios
 
 
-def get_scenario_weights_id(scenario_id: int) -> Result:
+def get_final_scenario_weights(scenario_id: int) -> Result:
     db = get_db()
     cursor = db.cursor()
-    cursor.execute('SELECT * FROM Scenario_Weights WHERE scenario_id = %s', (scenario_id,))
+    cursor.execute("SELECT * FROM Scenario_Weights WHERE scenario_id = %s AND criterion_id = 0 AND in_progress = 0", (scenario_id,))
     for id, scenario_id, criterion_id, size, in_progress in cursor:
-        cursor.close()
-        db.close()
-        return Result(True, "Weight id found", {'weights_id': id})
+        values = get_vector_elements_values(id)
+        if values:
+            return Result(True, "Weight id found", {'values': values})
     cursor.close()
     db.close()
     return Result(False, "Weight id not found")

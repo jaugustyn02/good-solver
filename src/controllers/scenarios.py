@@ -11,6 +11,7 @@ from models.matrix_element import MatrixElement, create_matrix_element
 from datetime import datetime
 import models.models as models
 import models.scenarios as Scenarios
+from models.scenario_weights import get_final_scenario_weights
 
 
 def configure_scenarios_routes(app):
@@ -113,7 +114,8 @@ def configure_scenarios_routes(app):
             experts_joined = models.count_experts_in_model(model_id).data['expert_count']
             surveys_completed = models.surveys_completed_count(model_id)
             confirmed = get_scenario_data(scenario_id).data['data'].in_progress
-            return render_template('scenarios_view.html', scenario_id=scenario_id, model=model,
+            finalized = Scenarios.get_scenario(scenario_id).data['scenario'].in_progress
+            return render_template('scenarios_view.html', scenario_id=scenario_id, model=model, finalized=finalized,
                                    alternatives=alternatives, criterias=criterias,scales=scales, survey_code=survey_code,
                                    experts_joined=experts_joined, surveys_completed=surveys_completed, confirmed=confirmed)
 
@@ -269,6 +271,15 @@ def configure_scenarios_routes(app):
             result = model.finalize()
             flash(result.message)
             return redirect(url_for('scenarios_view', scenario_id=scenario_id))
+
+    @app.route('/rankings/show', methods=['POST'])
+    def ranking_show():
+        if request.method == 'POST':
+            ranking_name = request.form['name']
+            scenario_id = request.form['scenario_id']
+            ranking_ = get_final_scenario_weights(scenario_id).data['values']
+            ranking = sorted(ranking_, key=lambda x: -x[1])
+            return render_template('show_rankings.html', ranking_name=ranking_name, ranking=ranking)
         
     # @app.route('/scenarios/delete', methods=['POST'])
     # def scenarios_delete():

@@ -5,8 +5,8 @@
     <h1>{{ ranking_name }}</h1>
     <p>Your results!</p>
     <ol>
-        {% for name in ranking %}
-        <li> {{name}} </li>
+        {% for name, value in ranking %}
+        <li> {{name}} - {{value}} </li>
         {% endfor %}
     </ol>
     </div>
