@@ -26,7 +26,7 @@ def get_vector_elements(weights_id: int):
     vector_elements = []
     db = get_db()
     cursor = db.cursor()
-    cursor.execute('SELECT * FROM WeightsVectorElement WHERE weights_id = %s', (weights_id,))
+    cursor.execute('SELECT * FROM Weights_Vector_Element WHERE weights_id = %s', (weights_id,))
     for id, weights_id, column, value in cursor:
         vector_elements.append(WeightsVectorElement(weights_id, column, value, id))
     cursor.close()
@@ -40,5 +40,5 @@ def get_vector_elements_values(weights_id: int):
     for vector_element in vector_elements:
         alternative = get_alternative(vector_element.column)
         if alternative.success:
-            values.append([alternative.name, vector_element.value])
-    return vector_elements
+            values.append([alternative.data['alternative'].name, vector_element.value])
+    return values

@@ -37,10 +37,18 @@
         <input type="hidden" name="scenario_id" value="{{scenario_id}}">
     </form>
     {% else %}
+    {% if not finalized %}
+    <form action="{{ url_for('ranking_show', scenario_id=scenario_id, name=model.name) }}" method="post">
+        <input type="submit" value="Show results">
+        <input type="hidden" name="scenario_id" value="{{scenario_id}}">
+        <input type="hidden" name="name" value="{{model.name}}">
+    </form>
+    {% else %}
     <form action="{{ url_for('scenarios_finalize', scenario_id=scenario_id) }}" method="post">
         <input type="submit" value="Finalize Scenario">
         <input type="hidden" name="scenario_id" value="{{scenario_id}}">
     </form>
+    {% endif %}
     {% endif %}
     <form action="{{ url_for('scenarios_delete_confirm', scenario_id=scenario_id) }}" method="get">
         <input id="delete-button" type="submit" value="Delete Scenario">
