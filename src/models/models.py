@@ -392,3 +392,7 @@ def get_model_aggregation_method(model_id: int) -> Result:
         db.close()
         return Result(True, "Aggregation method found", {"agg_method": aggregation_method[0]})
     return Result(False, "Aggregation method not found")
+
+
+def get_model_data(name: str) -> list:
+    return []
