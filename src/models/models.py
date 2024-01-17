@@ -1,3 +1,5 @@
+import re
+
 from helpers.database import get_mysql_connection as get_db
 from helpers.result import OperationResult as Result
 from models.scenarios import Scenario, create_scenario, get_scenario_data_id, get_scenario_id, set_scenario_in_progress
@@ -394,5 +396,93 @@ def get_model_aggregation_method(model_id: int) -> Result:
     return Result(False, "Aggregation method not found")
 
 
-def get_model_data(name: str) -> list:
-    return []
+def get_model_data(name: str, ranking_data: list) -> list:
+    db = get_db()
+
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM Models WHERE name like '%s'" % name)
+    for id, name, ranking_method, aggregation_method, completeness_required, start_date, end_date in cursor:
+        model = Model(name, ranking_method, aggregation_method, completeness_required, start_date, end_date, id)
+    cursor.close()
+
+    cursor = db.cursor()
+    cursor.execute(
+        'SELECT * FROM Experts WHERE expert_id IN (SELECT expert_id FROM Model_Experts WHERE ranking_id = %s)',
+        (model.id,))
+    experts = []
+    for id, name, address in cursor:
+        experts.append({'id': id, 'name': name, 'address': address})
+    cursor.close()
+
+    cursor = db.cursor()
+    cursor.execute(
+        "SELECT * FROM Scales WHERE scale_id IN (SELECT scale_id FROM Model_Scales WHERE model_id like '%s')" % model.id)
+    scales = []
+    for id, value, description in cursor:
+        scales.append({'value': value, 'description': description})
+    cursor.close()
+
+    cursor = db.cursor()
+    cursor.execute(
+        "SELECT * FROM Alternatives WHERE alternative_id IN (SELECT alternative_id FROM Model_Alternatives WHERE model_id like '%s')" % model.id)
+    alternatives = []
+    for id, name, description in cursor:
+        alternatives.append({'id': id, 'name': name, 'description': description})
+    cursor.close()
+
+    cursor = db.cursor()
+    cursor.execute(
+        "SELECT * FROM Criterias WHERE criterion_id IN (SELECT criterion_id FROM Model_Criterias WHERE model_id like '%s')" % model.id)
+    criteria = []
+    for id, parent_id, name, description in cursor:
+        criteria.append({'id': id, 'parent_criterion': parent_id, 'name': name, 'description': description})
+    cursor.close()
+
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM Decision_Scenarios WHERE model_id like '%s'" % model.id)
+    for scenario_id, model_id, in_progress in cursor:
+        scenario_id_ = scenario_id
+    cursor.close()
+
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM Scenario_Data WHERE scenario_id like '%s'" % scenario_id_)
+    for id, scenario_id, in_progress in cursor:
+        data_id = id
+    cursor.close()
+
+    matrix = []
+    for criterion in criteria:
+        matrix_ = []
+        for expert in experts:
+            cursor = db.cursor()
+            query = "SELECT * FROM Data_Matrices WHERE data_id = %s AND expert_id = %s AND criterion_id = %s"
+            cursor.execute(query, (data_id, expert['id'], criterion['id']))
+            for id, data_id, expert_id, criterion_id, size in cursor:
+                matrix_id = id
+                size = size
+            cursor.close()
+
+            cursor = db.cursor()
+            cursor.execute("SELECT * FROM Data_Matrix_Element WHERE matrix_id = '%s'" % matrix_id)
+            matrix_elements = []
+            for id, matrix_id, row, column, value in cursor:
+                element = [row, column, value]
+                matrix_elements.append(element)
+            cursor.close()
+            matrix_elements = sorted(matrix_elements, key=lambda x: (x[0], x[1]))
+            matrix_data = [[0 for _ in range(size)] for _ in range(size)]
+            for i in range(size):
+                for j in range(size):
+                    matrix_data[i][j] = matrix_elements[i * size + j][2]
+            matrix_.append({'criterionID': criterion['id'], 'pcm': matrix_data})
+        matrix.append({'expertID': expert['id'], 'matrices': matrix_})
+
+    db.close()
+    model = {'alternatives': alternatives, 'criteria': criteria, 'experts': experts, 'ranking_method': model.ranking_method, 'aggregation_method': model.aggregation_method, 'completeness_required': model.completeness_required, 'scale': scales}
+    ranking_data = re.sub("\[", "", ranking_data)
+    ranking_data = re.sub("]", "", ranking_data)
+    ranking_data = ranking_data.split(", ")
+    for i in range(len(ranking_data)):
+        ranking_data[i] = float(ranking_data[i])
+    data = {'decision_scenario': {'model': model, 'data':matrix, 'weights': ranking_data}}
+    return data

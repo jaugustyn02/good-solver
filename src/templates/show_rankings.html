@@ -9,7 +9,7 @@
         <li> {{name}} - {{value}} </li>
         {% endfor %}
     </ol>
-    <a href="{{ url_for('export_json', ranking_name=ranking_name) }}" download="data.json">
+    <a href="{{ url_for('export_json', ranking_name=ranking_name, ranking_data=ranking_data) }}" download="data.json">
         <button>Export JSON</button>
     </a>
     </div>

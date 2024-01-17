@@ -282,7 +282,10 @@ def configure_scenarios_routes(app):
                 scenario_id = Scenarios.get_scenario_id(model_id).data['scenario_id']
             ranking_ = get_final_scenario_weights(scenario_id).data['values']
             ranking = sorted(ranking_, key=lambda x: -x[1])
-            return render_template('show_rankings.html', ranking_name=ranking_name, ranking=ranking)
+            ranking_data = []
+            for i in ranking_:
+                ranking_data.append(i[1])
+            return render_template('show_rankings.html', ranking_name=ranking_name, ranking=ranking, ranking_data=ranking_data)
         if request.method == 'GET':
             ranking_name = request.args.get('name')
             scenario_id = ""
@@ -291,5 +294,8 @@ def configure_scenarios_routes(app):
                 scenario_id = Scenarios.get_scenario_id(model_id).data['scenario_id']
             ranking_ = get_final_scenario_weights(scenario_id).data['values']
             ranking = sorted(ranking_, key=lambda x: -x[1])
-            return render_template('show_rankings.html', ranking_name=ranking_name, ranking=ranking)
+            ranking_data = []
+            for i in ranking_:
+                ranking_data.append(i[1])
+            return render_template('show_rankings.html', ranking_name=ranking_name, ranking=ranking, ranking_data=ranking_data)
 
