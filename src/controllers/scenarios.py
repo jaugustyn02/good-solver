@@ -86,7 +86,7 @@ def configure_scenarios_routes(app):
                                        model_id=model_id, scales=scales, data_id=data_id, 
                                        alt1=alt1, alt2=alt2, criterion=criterion)
             else:
-                flash("Thank you for filling out the survey")
+                flash("You have already completed this survey")
                 return redirect(url_for('expert', expert_id=expert_id))
         
     @app.route('/scenarios/view', methods=['GET', 'POST'])
