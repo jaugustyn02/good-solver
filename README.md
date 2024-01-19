@@ -35,6 +35,10 @@ Po wprowadzeniu wszystkich danych zostajemy przekierowani na stronę z opisem da
 ![img_3.png](images/img_3.png)
 ![img_2.png](images/img_2.png)
 
+Przy dodawaniu alternatyw mamy wyświetlane alternatywy już będące w danym rankingu oraz widzimy guzik za pomocą którego możemy usunąć daną alternatywę. Analogiczna strona istnieje dla kryterió oraz skali.
+
+![img.png](images/img9.png)
+
 Również ze strony scenariuszy możemy przejść na podstronę danego rankingu.
 
 ![img.png](images/img.png)
@@ -57,4 +61,4 @@ Gdy wszyscy eksperci wypełnili już ranking to możemy wrócić do podstrony ra
 
 Tam też możemy zobaczyć ostateczne wyniki oraz pobrać dane naszego modelu.
 
-![img.png](images/img8.png)
+![img_1.png](images/img_8.png)
