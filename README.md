@@ -56,3 +56,5 @@ Gdy wszyscy eksperci wypełnili już ranking to możemy wrócić do podstrony ra
 ![img_6.png](images/img_6.png)
 
 Tam też możemy zobaczyć ostateczne wyniki oraz pobrać dane naszego modelu.
+
+![img.png](images/img8.png)
