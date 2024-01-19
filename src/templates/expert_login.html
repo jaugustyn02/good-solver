@@ -1,5 +1,7 @@
 {% extends 'components/base.html' %}
 
+{% block title %}Expert - {% endblock %}
+
 {% block content %}
     <div class="container">
     {% include 'components/result.html' %}
@@ -7,7 +9,7 @@
     <form action="/expert" method="get">
         <select name="expert_id">
             {% for expert in experts %}
-                <option value="{{ expert.id }}">[{{expert.id}}] {{ expert.name }}</option>
+                <option value="{{ expert.id }}">{{ expert.name }}</option>
             {% endfor %}
         </select>
         <input type="submit" value="Log in">
@@ -16,9 +18,12 @@
     <h1>Create an expert account</h1>
     <form action="/expert/signup" method="post">
         <input type="text" name="name" placeholder="Name">
+        <br>
         <input type="text" name="email" placeholder="Email">
+        <br>
         <input type="submit" value="Sign up">
     </form>
     </div>
+    {% include 'components/footer.html' %}
 {% endblock %}
 ```

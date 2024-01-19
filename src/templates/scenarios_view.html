@@ -3,10 +3,11 @@
 <div class="container">
     {% include 'components/result.html' %}
     <h1><a href="{{ url_for('scenarios_view', scenario_id=scenario_id) }}">Scenario Panel</a></h1>
-    <h2>Details:</h2>
+    <h2>Details</h2>
     <p>Model Name: <span id='orange'>{{ model.name }}</span></p>
     <p>Scenario ID: {{ scenario_id }}</p>
     <p>Start Date: {{ model.start_date }}</p>
+    <p>End Date: {{ model.end_date }}</p>
     <p>Ranking method: {{ model.ranking_method|upper }}</p>
     <p>Aggregation method: {{ model.aggregation_method|upper }}</p>
     <p>Completeness required: {% if model.completeness_required == 1 %} Yes {% else %} No {% endif %}</p>
@@ -15,22 +16,22 @@
     <P>Surveys completed: {{ surveys_completed }}</P>
     <p>Experts joined: {{ experts_joined }}</p>
     {% endif %}
-    <h2>Alternatives:</h2>
+    <h2>Alternatives</h2>
     {% include 'components/alternatives_list.html' %}
     {% if not confirmed %}
     <p>To edit alternatives, click <a href="{{ url_for('scenarios_alternatives', scenario_id=scenario_id) }}">here.</a></p>
     {% endif %}
-    <h2>Criteria:</h2>
+    <h2>Criteria</h2>
     {% include 'components/criteria_list.html' %}
     {% if not confirmed %}
     <p>To edit criteria, click <a href="{{ url_for('scenarios_criterias', scenario_id=scenario_id) }}">here.</a></p>
     {% endif %}
-    <h2>Scale:</h2>
+    <h2>Scale</h2>
     {% include 'components/scale_list.html' %}
     {% if not confirmed %}
     <p>To edit scale, click <a href="{{ url_for('scenarios_scales', scenario_id=scenario_id) }}">here.</a></p>
     {% endif %}
-    <h2>Options:</h2>
+    <h2>Options</h2>
     {% if not confirmed %}
     <form action="{{ url_for('scenarios_confirm', scenario_id=scenario_id) }}" method="post">
         <input type="submit" value="Confirm Scenario">
@@ -38,7 +39,7 @@
     </form>
     {% else %}
     {% if not finalized %}
-    <form action="{{ url_for('ranking_show', scenario_id=scenario_id, name=model.name) }}" method="post">
+    <form action="{{ url_for('ranking_show', model_id=model.id) }}" method="post">
         <input type="submit" value="Show results">
         <input type="hidden" name="scenario_id" value="{{scenario_id}}">
         <input type="hidden" name="name" value="{{model.name}}">
@@ -55,5 +56,6 @@
         <input type="hidden" name="scenario_id" value="{{scenario_id}}">
     </form>
 </div>
+{% include 'components/footer.html' %}
 {% endblock %}
 ```

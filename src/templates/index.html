@@ -1,9 +1,23 @@
 {% extends 'components/base.html' %}
 
+{% block title %}Home - {% endblock %}
+
 {% block content %}
     <div class="container">
-    <h1>Home</h1>
-    <p> Welcome to the home page!</p>
+        <h1>Welcome to GoodSolver!</h1>
+        <p>
+            <span id="orange">GoodSolver</span> is a platform for collaborative decision-making using the Analytic Hierarchy Process (AHP).
+            Create decision scenarios, log in as an expert, add surveys using an invite code, and explore rankings
+            of completed scenarios.
+        </p>
+
+        <h2>Main Features</h2>
+        <ul>
+            <li>- Create new <span id="scale">decision scenarios.</span></li>
+            <li>- Log in as an expert, add <span id="scale">surveys</span> with invite code, and fill them out.</li>
+            <li>- Browse results of completed scenarios, including final <span id="scale">rankings.</span></li>
+        </ul>
     </div>
+    {% include 'components/footer.html' %}
 {% endblock %}
 ```

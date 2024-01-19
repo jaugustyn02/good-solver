@@ -1,4 +1,7 @@
 {% extends 'components/base.html' %}
+
+{% block title %}Delete - {% endblock %}
+
 {% block content %}
 <div class="container">
     {% include 'components/result.html' %}
@@ -11,5 +14,6 @@
         <button onclick="window.location.href='{{ url_for('scenarios_view', scenario_id=scenario_id) }}'">Cancel</button>
     </div>
 </div>
+{% include 'components/footer.html' %}
 {% endblock %}
 ```

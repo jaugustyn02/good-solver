@@ -1,5 +1,7 @@
 {% extends 'components/base.html' %}
 
+{% block title %}Expert - {% endblock %}
+
 {% block content %}
     <div class="container">
     {% include 'components/result.html' %}
@@ -7,21 +9,22 @@
     <h2> Join a new survey </h2>
     <form action="/expert/join" method="post">
         <input type="text" name="access_code" placeholder="Access code">
-        <input type="hidden" name="expert_id" value={{ expert_id }}>
+        <input type="hidden" name="expert_id" value="{{ expert_id }}">
         <input type="submit" value="Join">
     </form>
     <h2> Your list of ongoing surveys: </h2>
     <ul>
         {% for scenario in surveys_ongoing %}
-            <li>{{scenario.name}} - <a href="{{ url_for('scenarios_complete', model_id=scenario.id, expert_id=expert_id, expert_name=expert_name, scenario_id='', scales='') }}" >take a survey</a></li>
+            <li>{{scenario.name}} - <a href="{{ url_for('scenarios_complete', model_id=scenario.id, expert_id=expert_id) }}" >take a survey</a></li>
         {% endfor %}
     </ul>
     <h2> Your list of ended surveys: </h2>
     <ul>
         {% for scenario in surveys_ended %}
-        <li>{{scenario.name}} - <a href="{{ url_for('ranking_show', model_id=scenario.id, name=scenario.name) }}">see results</a></li>
+        <li>{{scenario.name}} - <a href="{{ url_for('show_rankings', model_id=scenario.id) }}">see results</a></li>
         {% endfor %}
     </ul>
     </div>
+    {% include 'components/footer.html' %}
 {% endblock %}
 ```

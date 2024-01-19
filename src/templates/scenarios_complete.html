@@ -1,5 +1,7 @@
 {% extends 'components/base.html' %}
 
+{% block title %}Survey - {% endblock %}
+
 {% block content %}
     <div class="container">
     {% include 'components/result.html' %}
@@ -10,7 +12,7 @@
         <h2> - </h2>
         <h2>{{alt2.name}}</h2>
     </div>
-    <form action="{{ url_for('scenarios_complete', model_id=model_id, expert_id=expert_id, expert_name=expert_name, scenario_id=scenario_id, alternative1_id=alt1.id, alternative2_id=alt2.id, criterion_id=criterion.id) }}" method="post">
+    <form action="{{ url_for('scenarios_complete', model_id=model_id, expert_id=expert_id, data_id=data_id, alternative1_id=alt1.id, alternative2_id=alt2.id, criterion_id=criterion.id) }}" method="post">
         <input type="range" name="rangeSlider" min="{{1-(scales|length)}}" max="{{(scales|length)-1}}" value="0" oninput="updateRangeValue(this.value, [{% for scale in scales %}{{ scale.value }},{% endfor %}], {{scales|length}})">
         <p id="rangeValue">1 : 1</p>
         <input type="submit" value="Submit my answer">
@@ -29,5 +31,6 @@
         }
     </script>
     </div>
+    {% include 'components/footer.html' %}
 {% endblock %}
 ```

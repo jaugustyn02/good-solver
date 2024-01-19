@@ -1,17 +1,20 @@
 {% extends 'components/base.html' %}
 
+{% block title %}Ranking - {% endblock %}
+
 {% block content %}
     <div class="container">
     <h1>{{ ranking_name }}</h1>
     <p>Your results!</p>
-    <ol>
+    <ol class="ranking">
         {% for name, value in ranking %}
-        <li> {{name}} - {{value}} </li>
+        <li class="ranking"> {{name}} - {{value}} </li>
         {% endfor %}
     </ol>
     <a href="{{ url_for('export_json', ranking_name=ranking_name, ranking_data=ranking_data) }}" download="data.json">
         <button>Export JSON</button>
     </a>
     </div>
+    {% include 'components/footer.html' %}
 {% endblock %}
 ```
