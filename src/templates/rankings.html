@@ -1,19 +1,22 @@
 {% extends 'components/base.html' %}
 
+{% block title %}Rankings - {% endblock %}
+
 {% block content %}
     <div class="container">
     <h1>Rankings</h1>
     <p> Choose which ranking you want to have displayed </p>
     <form method="POST" action="{{url_for('show_rankings')}}">
           <label>
-              <select name="sel" id="sel">
-                  {% for arg in arguments %}
-                    <option value="{{ arg.name }}">{{ arg.name }}</option>
+              <select name="model_id" id="model_id">
+                  {% for model in arguments %}
+                    <option value="{{ model.id }}">{{ model.name }}</option>
                   {% endfor %}
               </select>
           </label>
         <input type="submit" value="Show result">
     </form>
     </div>
+    {% include 'components/footer.html' %}
 {% endblock %}
 ```

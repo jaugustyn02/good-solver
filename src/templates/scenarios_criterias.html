@@ -1,4 +1,7 @@
 {% extends 'components/base.html' %}
+
+{% block title %}Scenario Panel - {% endblock %}
+
 {% block content %}
 <div class="container">
     {% include 'components/result.html' %}
@@ -32,5 +35,6 @@
         <input type="hidden" name="scenario_id" value="{{ scenario_id }}">
         <input id="delete-button" type="submit" value="Delete">
 </div>
+{% include 'components/footer.html' %}
 {% endblock %}
 ```

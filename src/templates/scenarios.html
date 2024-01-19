@@ -1,19 +1,23 @@
 {% extends 'components/base.html' %}
+
+{% block title %}Scenarios - {% endblock %}
+
 {% block content %}
 <div class="container">
     {% include 'components/result.html' %}
-    <h1>Ongoing Scenarios:</h1>
+    <h1>Ongoing Scenarios</h1>
     <ul>
         {% for scenario in scenarios_in_progress %}
             <li>{{ scenario.id }}: {{ scenarios_names[scenario.id]}} - <a href="{{ url_for('scenarios_view', scenario_id=scenario.id) }}">enter panel</a></li>
         {% endfor %}
     </ul>
-    <h1>Completed Scenarios:</h1>
+    <h1>Completed Scenarios</h1>
     <ul>
         {% for scenario in scenarios_completed %}
             <li>{{ scenario.id }}: {{ scenarios_names[scenario.id]}} - <a href="{{ url_for('scenarios_view', scenario_id=scenario.id) }}">enter panel</a></li>
         {% endfor %}
     </ul>
 </div>
+{% include 'components/footer.html' %}
 {% endblock %}
 ```

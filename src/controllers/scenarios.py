@@ -6,7 +6,7 @@ from models.scenario_data import get_scenario_data
 from models.criterions import Criterion, get_criteria
 from models.scales import Scale
 from models.matrix_element import MatrixElement, create_matrix_element
-from datetime import datetime
+from datetime import datetime, timedelta
 import models.models as models
 import models.scenarios as Scenarios
 from models.scenario_weights import get_final_scenario_weights
@@ -31,22 +31,18 @@ def configure_scenarios_routes(app):
 
     @app.route('/scenarios/complete', methods=['GET', 'POST'])
     def scenarios_complete():
+        model_id = request.args.get('model_id')
+        expert_id = request.args.get('expert_id')
+        scales = models.get_model_scales(model_id).data['scales']
         if request.method == 'POST':
-            model_id = request.args.get('model_id')
-            expert_id = request.args.get('expert_id')
-            expert_name = request.args.get('expert_name')
-            scenario_id = request.args.get('scenario_id')
-            model = models.get_model(model_id).data['model']
-            scales = model.get_scales()
-
+            data_id = request.args.get('data_id')
+            
             slider_value = int(request.form['rangeSlider'])
             criterion_id = request.args.get('criterion_id')
             alt1_id = request.args.get('alternative1_id')
             alt2_id = request.args.get('alternative2_id')
-            data = get_scenario_data(scenario_id)
-            data_id = data.data['data'].id
-            data_matrix = get_data_matrix(data_id, expert_id, criterion_id).data['data']
             
+            data_matrix = get_data_matrix(data_id, expert_id, criterion_id).data['data']
             # slider_value is from range 1-scales_length to scales_length-1, it represents the index of the scale and which alternative is better
             scale_value = scales[abs(int(slider_value))].value
             if slider_value < 0:
@@ -56,48 +52,42 @@ def configure_scenarios_routes(app):
                 create_matrix_element(MatrixElement(data_matrix.id,alt1_id,alt2_id,1 / float(scale_value)))
                 create_matrix_element(MatrixElement(data_matrix.id,alt2_id,alt1_id,float(scale_value)))
                 
-            res = find_empty_matrix_field(expert_id, scenario_id, model.get_criterias(), model.get_alternatives())
+            res = find_empty_matrix_field(expert_id, data_id, model_id)
             if res.success:
                 alt1_id, alt2_id, criterion = res.data['data']
-                alt1 = get_alternative(alt1_id)
-                alt2 = get_alternative(alt2_id)
-                if alt1.success:
-                    alt1 = alt1.data['alternative']
-                    alt2 = alt2.data['alternative']
+                type = res.data['type']
+                if type == 'alternative':
+                    alt1 = get_alternative(alt1_id).data['alternative']
+                    alt2 = get_alternative(alt2_id).data['alternative']
                 else:
                     alt1 = get_criteria(alt1_id).data['criterion']
                     alt2 = get_criteria(alt2_id).data['criterion']
-                return render_template('scenarios_complete.html', scenario_id=scenario_id, expert_id=expert_id,
-                                       model_id=model_id, scales=scales, expert_name=expert_name, model=model,
+                return render_template('scenarios_complete.html', expert_id=expert_id,
+                                       model_id=model_id, scales=scales, data_id=data_id, 
                                        alt1=alt1, alt2=alt2, criterion=criterion)
             else:
-                complete_all_other_fields(expert_id, scenario_id, model.get_criterias(), model.get_alternatives())
+                complete_all_other_fields(expert_id, data_id, model_id)
                 flash("Thank you for filling out the survey")
-                return redirect(url_for('scenarios'))
+                return redirect(url_for('expert', expert_id=expert_id))
         else:
-            model_id = request.args.get('model_id')
-            expert_id = request.args.get('expert_id')
-            expert_name = request.args.get('expert_name')
             scenario_id = Scenarios.get_scenario_id(model_id).data['scenario_id']
-            model = models.get_model(model_id).data['model']
-            scales = model.get_scales()
-            res = find_empty_matrix_field(expert_id, scenario_id, model.get_criterias(), model.get_alternatives())
+            data_id = Scenarios.get_scenario_data_id(scenario_id).data['data_id']
+            res = find_empty_matrix_field(expert_id, data_id, model_id)
             if res.success:
                 alt1_id, alt2_id, criterion = res.data['data']
-                alt1 = get_alternative(alt1_id)
-                alt2 = get_alternative(alt2_id)
-                if alt1.success:
-                    alt1 = alt1.data['alternative']
-                    alt2 = alt2.data['alternative']
+                type = res.data['type']
+                if type == 'alternative':
+                    alt1 = get_alternative(alt1_id).data['alternative']
+                    alt2 = get_alternative(alt2_id).data['alternative']
                 else:
                     alt1 = get_criteria(alt1_id).data['criterion']
                     alt2 = get_criteria(alt2_id).data['criterion']
-                return render_template('scenarios_complete.html', scenario_id=scenario_id, expert_id=expert_id,
-                                       model_id=model_id, scales=scales, expert_name=expert_name, model=model,
+                return render_template('scenarios_complete.html', expert_id=expert_id,
+                                       model_id=model_id, scales=scales, data_id=data_id, 
                                        alt1=alt1, alt2=alt2, criterion=criterion)
             else:
-                flash("Thank you for filling out the survey")
-                return redirect(url_for('scenarios'))
+                flash("You have already completed this survey")
+                return redirect(url_for('expert', expert_id=expert_id))
         
     @app.route('/scenarios/view', methods=['GET', 'POST'])
     def scenarios_view():
@@ -110,7 +100,7 @@ def configure_scenarios_routes(app):
             scales = model.get_scales()
             survey_code = encode_int(int(model_id))
             experts_joined = models.count_experts_in_model(model_id).data['expert_count']
-            surveys_completed = models.surveys_completed_count(model_id)
+            surveys_completed = models.surveys_completed_count(scenario_id)
             confirmed = get_scenario_data(scenario_id).data['data'].in_progress
             finalized = Scenarios.get_scenario(scenario_id).data['scenario'].in_progress
             return render_template('scenarios_view.html', scenario_id=scenario_id, model=model, finalized=finalized,
@@ -122,11 +112,7 @@ def configure_scenarios_routes(app):
         if request.method == 'GET':
             scenarios_in_progress = Scenarios.get_scenarios_in_progress()
             scenarios_completed = Scenarios.get_scenarios_completed()
-            scenarios_id = [scenario.id for scenario in scenarios_in_progress + scenarios_completed]
-            scenarios_names = {scenario_id : models.get_model_name(
-                    (Scenarios.get_scenario_model_id(scenario_id)).data['model_id']
-                ).data['model_name'] for scenario_id in scenarios_id
-            }
+            scenarios_names = models.get_models_names().data['names']
             return render_template('scenarios.html', scenarios_in_progress=scenarios_in_progress, scenarios_completed=scenarios_completed, scenarios_names=scenarios_names)
         if request.method == 'POST':
             name = request.form['name']
@@ -135,7 +121,9 @@ def configure_scenarios_routes(app):
             start_date = datetime.now()
             end_date = request.form['end_date']
             if end_date == "":
-                end_date = datetime.max
+                end_date = start_date + timedelta(days=1)
+            else:
+                end_date = datetime.strptime(end_date, '%Y-%m-%dT%H:%M')
             completeness_required = request.form.get('completeness_required') is not None
             result = models.add_model(models.Model(name, ranking_method, aggregation_method, completeness_required, start_date, end_date))
             if result.success:

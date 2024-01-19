@@ -75,7 +75,7 @@ def add_model(model: Model) -> Result:
     scenario_id = scenario_result.data['scenario_id']
     
     # Add root criteria
-    root_criterion = Criterion(None, "root", "")
+    root_criterion = Criterion(None, "Root", "")
     add_model_criterion(model_id, root_criterion)
     
     # Add default scales
@@ -373,16 +373,15 @@ def count_alternatives_in_model(model_id: int) -> Result:
     return Result(False, "No alternatives found")
 
 
-def surveys_completed_count(model_id: int) -> int:
-    count = 0
-    model = get_model(model_id).data['model']
-    experts_id = get_model_experts_id(model_id)
-    scenario_id = get_scenario_id(model_id).data['scenario_id']
-    for expert_id in experts_id:
-        res = find_empty_matrix_field(expert_id, scenario_id, model.get_criterias(), model.get_alternatives())
-        if not res.success:
-            count += 1
-    return count
+def surveys_completed_count(scenario_id: int) -> int:
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT data_id FROM Scenario_Data WHERE scenario_id = %s", (scenario_id,))
+    cursor.execute("SELECT COUNT(DISTINCT expert_id) FROM Data_Matrices as DM INNER JOIN Data_Matrix_Element as DME ON DM.matrix_id = DME.matrix_id WHERE `column` = `row` AND data_id = '%s'" % cursor.fetchone()[0])
+    for count in cursor:
+        cursor.close()
+        db.close()
+        return count[0]
 
 
 def get_model_aggregation_method(model_id: int) -> Result:
@@ -486,3 +485,15 @@ def get_model_data(name: str, ranking_data: list) -> list:
         ranking_data[i] = float(ranking_data[i])
     data = {'decision_scenario': {'model': model, 'data':matrix, 'weights': ranking_data}}
     return data
+
+
+def get_models_names() -> Result:
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT scenario_id, name FROM Models INNER JOIN Decision_Scenarios as scen ON Models.model_id = scen.model_id')
+    names = {}
+    for scenario_id, name in cursor:
+        names[scenario_id] = name
+    cursor.close()
+    db.close()
+    return Result(True, "Scenario names found", {"names": names})

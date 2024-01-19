@@ -1,5 +1,30 @@
-# good_solver
-Projekt aplikacji web'owej z przedmiotu Metody i Algorytmy Podejmowania Decyzji.
+# Good Solver
+Aplikacja internetowa pozwalająca na podejmowanie decyzji grupowych z wykorzystaniem metody **AHP**. Jest to projekt zaliczeniowy z przedmiotu *Metody i Algorytmy Podejmowania Decyzji*.
+
+## Instalowanie wymaganych bibliotek
+Aby zainstalować wymagane biblioteki należy wykonać polecenie:
+```
+    pip install -r requirements.txt
+```
+
+## Łączenie z bazą danych
+Aplikacja wymaga połączenia z siecią AGH do komunikacji z bazą MySQL znajdującą się na serwerze `mysql.agh.edu.pl`.
+
+W tym celu można skorzystać z VPN'a dostępnego dla studentów i pracowników uczelni AGH.
+
+## Uruchomienie aplikacji
+Aby uruchomić aplikację należy udać się do folderu [src](/src/), gdzie znajduje się plik [app.py](/src/app.py) i wykonać polecenie:
+```
+    flask run
+```
+Aplikacja będzie dostępna pod adresem: [http://127.0.0.1:5000](http://127.0.0.1:5000)
+
+## Korzystanie z aplikacji
+Ponieważ aplikacja jest również hostowana na platformie *Railway*, można z niej korzystać bez konieczności uruchamiania jej lokalnie.
+
+Aplikacja jest dostępna pod adresem: [https://good-solver.up.railway.app/](https://good-solver.up.railway.app/)
+
+
 ## Przykład użycia aplikacji
 Po przejściu na podstronę `Create` mamy szansę stworzyć nowy ranking. Można tutaj nazwać swój ranking, wybrać metodę tworzenia rankingu oraz jedną z dwóch metod agregacji. Jest też możliwość wybrania czy dane mają być kompletne oraz jaka ma być data i godzina zakończenia zbierania danych.
 

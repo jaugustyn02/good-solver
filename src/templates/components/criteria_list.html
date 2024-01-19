@@ -1,7 +1,9 @@
 <ul>
-    {% for criterion in criterias %}
-        {% if criterion.parent_id is not none %}
-        <li>[{{ criterion.id }}] - ParentID: {{ criterion.parent_id }}, Name: <span id="criterion">{{ criterion.name }}</span>, Description:  <span id="description">{{ criterion.description }}</span></li>
-        {% endif %}
+    {% for criterion in criterias if criterion.parent_id %}
+        {% with parent_id=criterion.parent_id %}
+            {% for criterion2 in criterias if criterion2.id == parent_id %}
+                <li>- Parent: <span id="parent">{{ criterion2.name }}</span>, Name: <span id="criterion">{{ criterion.name }}</span>, Description: <span id="description">{{ criterion.description }}</span></li>
+            {% endfor %}
+        {% endwith %}
     {% endfor %}
 </ul>
